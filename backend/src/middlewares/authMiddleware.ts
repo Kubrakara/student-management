@@ -13,6 +13,7 @@ export interface IRequest extends Request {
 const authMiddleware = (req: IRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    //console.log('Auth header:', req.headers.authorization);
     return res.status(401).json({ message: 'Kimlik doğrulama tokenı eksik veya geçersiz.' });
   }
 
