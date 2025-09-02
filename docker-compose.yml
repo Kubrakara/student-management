@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  # MongoDB veritabanı servisi
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Backend servisi
+  backend:
+    build: ./backend
+    container_name: backend_container
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/studentdb
+      - JWT_SECRET=your_jwt_secret_key
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/dist # <--- Bu satır eklendi
+  # Frontend servisi
+  frontend:
+    build: ./frontend
+    container_name: frontend_container
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
+    depends_on:
+      - backend
+
+# kalıcı veri saklamak için
+volumes:
+  mongo_data: {}
