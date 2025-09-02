@@ -5,7 +5,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./src/routes/auth";
 import studentRoutes from "./src/routes/studentRoutes";
-import courseRoutes from "./src/routes/courseRoutes"; // Yeni eklenen satır
+import courseRoutes from "./src/routes/courseRoutes"; 
+import enrollmentRoutes from "./src/routes/enrollmentRoutes";
 
 dotenv.config();
 
@@ -28,7 +29,8 @@ mongoose
 // Rotaları kullanma
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
-app.use("/api/courses", courseRoutes); // Yeni eklenen satır
+app.use("/api/courses", courseRoutes);
+app.use("/api/enrollments", enrollmentRoutes); 
 
 app.get("/", (req: Request, res: Response) => {
   res.send("API çalışıyor!");
