@@ -7,6 +7,8 @@ export interface IStudent {
   firstName: string;
   lastName: string;
   birthDate: string;
+  username: string; 
+  password: string; 
 }
 
 interface StudentState {
@@ -21,7 +23,6 @@ const initialState: StudentState = {
   error: null,
 };
 
-// Öğrencileri API'den çekme
 export const fetchStudents = createAsyncThunk(
   "student/fetchStudents",
   async (_, { rejectWithValue }) => {
@@ -41,8 +42,9 @@ export const createStudent = createAsyncThunk(
   "student/createStudent",
   async (studentData: Omit<IStudent, "_id">, { rejectWithValue }) => {
     try {
-      const response = await api.post("/students", studentData);
-      return response.data;
+      
+      const response = await api.post("/auth/register", studentData);
+      return response.data; 
     } catch (err: unknown) {
       const error = err as AxiosError;
       return rejectWithValue(
@@ -52,6 +54,7 @@ export const createStudent = createAsyncThunk(
   }
 );
 
+// Asenkron thunk: Öğrenci silme
 export const deleteStudent = createAsyncThunk(
   "student/deleteStudent",
   async (studentId: string, { rejectWithValue }) => {
@@ -87,12 +90,9 @@ const studentSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(
-        createStudent.fulfilled,
-        (state, action: PayloadAction<IStudent>) => {
-          state.students.push(action.payload);
-        }
-      )
+      .addCase(createStudent.fulfilled, (state) => {
+      
+      })
       .addCase(
         deleteStudent.fulfilled,
         (state, action: PayloadAction<string>) => {

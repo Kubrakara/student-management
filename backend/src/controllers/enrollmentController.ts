@@ -4,10 +4,15 @@ import Student from "../models/Student";
 import Course from "../models/Course";
 import { IRequest } from "../middlewares/authMiddleware";
 
-// Öğrenciyi bir derse kaydetme
+// Admin öğrenciyi bir derse kaydeder
 export const enrollStudentInCourse = async (req: IRequest, res: Response) => {
-  const { courseId } = req.body;
-  const studentId = req.user?.userId;
+  const { studentId, courseId } = req.body;
+
+  if (!studentId || !courseId) {
+    return res
+      .status(400)
+      .json({ message: "Öğrenci veya ders bilgileri eksik." });
+  }
 
   try {
     const student = await Student.findById(studentId);
@@ -30,38 +35,31 @@ export const enrollStudentInCourse = async (req: IRequest, res: Response) => {
   }
 };
 
-// Öğrencinin kayıtlı olduğu dersleri listeleme
-export const getMyCourses = async (req: IRequest, res: Response) => {
-  const studentId = req.user?.userId;
-
+// Admin tüm kayıtları listeler
+export const getEnrollments = async (req: IRequest, res: Response) => {
   try {
-    const enrollments = await Enrollment.find({ student: studentId }).populate(
-      "course",
-      "name"
-    );
+    const enrollments = await Enrollment.find()
+      .populate("student", "firstName lastName")
+      .populate("course", "name");
 
-    const courses = enrollments.map((e) => e.course);
-    res.status(200).json(courses);
+    res.status(200).json(enrollments);
   } catch (err) {
     res.status(500).json({ message: "Sunucu hatası." });
   }
 };
-// Öğrencinin bir dersten kaydını silmesi
+
+// Admin bir kaydı siler
 export const withdrawFromCourse = async (req: IRequest, res: Response) => {
-  const { courseId } = req.params;
-  const studentId = req.user?.userId;
+  const { enrollmentId } = req.params;
 
   try {
-    const enrollment = await Enrollment.findOneAndDelete({
-      student: studentId,
-      course: courseId,
-    });
+    const enrollment = await Enrollment.findByIdAndDelete(enrollmentId);
 
     if (!enrollment) {
       return res.status(404).json({ message: "Kayıt bulunamadı." });
     }
 
-    res.status(200).json({ message: "Dersten başarıyla çekildiniz." });
+    res.status(200).json({ message: "Kayıt başarıyla silindi." });
   } catch (err) {
     res.status(500).json({ message: "Sunucu hatası." });
   }
