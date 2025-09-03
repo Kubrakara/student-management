@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "@/services/api";
 import { AxiosError } from "axios";
 
-// Öğrenci verisinin tipi
 export interface IStudent {
   _id: string;
   firstName: string;
@@ -22,7 +21,7 @@ const initialState: StudentState = {
   error: null,
 };
 
-// Asenkron thunk: Öğrencileri API'den çekme
+// Öğrencileri API'den çekme
 export const fetchStudents = createAsyncThunk(
   "student/fetchStudents",
   async (_, { rejectWithValue }) => {
@@ -31,7 +30,6 @@ export const fetchStudents = createAsyncThunk(
       return response.data.students;
     } catch (err: unknown) {
       const error = err as AxiosError;
-      // Hata mesajını güvenli bir şekilde alıyoruz
       return rejectWithValue(
         (error.response?.data as { message?: string })?.message || error.message
       );
@@ -39,7 +37,6 @@ export const fetchStudents = createAsyncThunk(
   }
 );
 
-// Asenkron thunk: Yeni öğrenci ekleme
 export const createStudent = createAsyncThunk(
   "student/createStudent",
   async (studentData: Omit<IStudent, "_id">, { rejectWithValue }) => {
@@ -48,7 +45,6 @@ export const createStudent = createAsyncThunk(
       return response.data;
     } catch (err: unknown) {
       const error = err as AxiosError;
-      // Hata mesajını güvenli bir şekilde alıyoruz
       return rejectWithValue(
         (error.response?.data as { message?: string })?.message || error.message
       );
@@ -56,7 +52,6 @@ export const createStudent = createAsyncThunk(
   }
 );
 
-// Asenkron thunk: Öğrenci silme
 export const deleteStudent = createAsyncThunk(
   "student/deleteStudent",
   async (studentId: string, { rejectWithValue }) => {
@@ -65,7 +60,6 @@ export const deleteStudent = createAsyncThunk(
       return studentId;
     } catch (err: unknown) {
       const error = err as AxiosError;
-      // Hata mesajını güvenli bir şekilde alıyoruz
       return rejectWithValue(
         (error.response?.data as { message?: string })?.message || error.message
       );

@@ -1,5 +1,3 @@
-// frontend/app/dashboard/admin/layout.tsx
-
 import React from "react";
 import Link from "next/link";
 import AuthenticatedRoute from "@/components/AuthenticatedRoute";
@@ -8,7 +6,6 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <AuthenticatedRoute requiredRole="admin">
       <div className="flex min-h-screen bg-gray-100">
-        {/* Sidebar */}
         <aside className="w-64 bg-white shadow-md">
           <div className="p-4 border-b">
             <h1 className="text-2xl font-bold text-blue-600">Admin Paneli</h1>
@@ -43,7 +40,6 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </nav>
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 p-8">{children}</main>
       </div>
     </AuthenticatedRoute>

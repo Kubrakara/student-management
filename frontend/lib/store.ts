@@ -8,10 +8,8 @@ export const store = configureStore({
     user: userReducer,
     student: studentReducer,
     course: courseReducer,
-    // Diğer reducer'lar buraya eklenecek
   },
 });
 
-// TypeScript için gerekli tipler
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

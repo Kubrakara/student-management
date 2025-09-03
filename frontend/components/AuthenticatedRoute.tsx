@@ -1,5 +1,3 @@
-// frontend/components/AuthenticatedRoute.tsx
-
 'use client';
 
 import { useRouter } from 'next/navigation';

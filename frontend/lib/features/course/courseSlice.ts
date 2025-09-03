@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "@/services/api";
 import { AxiosError } from "axios";
 
-// Ders verisinin tipi
 export interface ICourse {
   _id: string;
   name: string;
@@ -20,7 +19,6 @@ const initialState: CourseState = {
   error: null,
 };
 
-// Asenkron thunk: Dersleri API'den çekme
 export const fetchCourses = createAsyncThunk(
   "course/fetchCourses",
   async (_, { rejectWithValue }) => {
@@ -36,7 +34,7 @@ export const fetchCourses = createAsyncThunk(
   }
 );
 
-// Asenkron thunk: Yeni ders ekleme
+
 export const createCourse = createAsyncThunk(
   "course/createCourse",
   async (courseData: Omit<ICourse, "_id">, { rejectWithValue }) => {
@@ -52,7 +50,6 @@ export const createCourse = createAsyncThunk(
   }
 );
 
-// Asenkron thunk: Ders silme
 export const deleteCourse = createAsyncThunk(
   "course/deleteCourse",
   async (courseId: string, { rejectWithValue }) => {
@@ -108,5 +105,5 @@ const courseSlice = createSlice({
   },
 });
 
-export const {} = courseSlice.actions; // Hiçbir reducer eklemediğimiz için boş bırakıldı
+export const {} = courseSlice.actions; 
 export default courseSlice.reducer;

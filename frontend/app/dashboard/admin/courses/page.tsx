@@ -46,7 +46,6 @@ const CourseManagementPage: React.FC = () => {
         <h2 className="text-3xl font-bold text-gray-900">Ders Yönetimi</h2>
       </div>
 
-      {/* Yeni Ders Ekleme Formu */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h3 className="text-xl font-semibold mb-4">Yeni Ders Ekle</h3>
         <div className="flex gap-4 mb-4">
@@ -58,8 +57,7 @@ const CourseManagementPage: React.FC = () => {
           <Button onClick={handleCreateCourse}>Ekle</Button>
         </div>
       </div>
-
-      {/* Ders Listesi */}
+      
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-xl font-semibold mb-4">
           Ders Listesi ({courses.length})
