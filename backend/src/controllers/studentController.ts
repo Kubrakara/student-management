@@ -3,6 +3,8 @@
 import { Request, Response } from 'express';
 import Student, { IStudent } from '../models/Student';
 import { IRequest } from '../middlewares/authMiddleware';
+import User from '../models/User';
+import Enrollment from '../models/Enrollment';
 
 // Yeni öğrenci ekle
 export const createStudent = async (req: Request, res: Response) => {
@@ -71,6 +73,86 @@ export const deleteStudent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Öğrenci bulunamadı.' });
     }
     res.status(200).json({ message: 'Öğrenci başarıyla silindi.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+};
+
+// Öğrenci kendi profilini getir
+export const getOwnProfile = async (req: IRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Kimlik doğrulama gerekli.' });
+    }
+
+    const user = await User.findById(req.user.userId).populate('studentId');
+    if (!user || !user.studentId) {
+      return res.status(404).json({ message: 'Öğrenci profili bulunamadı.' });
+    }
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        username: user.username,
+        role: user.role
+      },
+      student: user.studentId
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+};
+
+// Öğrenci kendi profilini güncelle
+export const updateOwnProfile = async (req: IRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Kimlik doğrulama gerekli.' });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user || !user.studentId) {
+      return res.status(404).json({ message: 'Öğrenci profili bulunamadı.' });
+    }
+
+    // Sadece öğrenci bilgilerini güncelle (kullanıcı bilgileri değil)
+    const updatedStudent = await Student.findByIdAndUpdate(
+      user.studentId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Öğrenci bulunamadı.' });
+    }
+
+    res.status(200).json(updatedStudent);
+  } catch (err: any) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: err.message });
+    }
+    res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+};
+
+// Öğrenci kendi kayıtlarını getir
+export const getOwnEnrollments = async (req: IRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Kimlik doğrulama gerekli.' });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user || !user.studentId) {
+      return res.status(404).json({ message: 'Öğrenci profili bulunamadı.' });
+    }
+
+    const enrollments = await Enrollment.find({ studentId: user.studentId })
+      .populate('courseId', 'name')
+      .populate('studentId', 'firstName lastName')
+      .sort({ createdAt: -1 }); // En yeni kayıtlar önce
+
+    res.status(200).json(enrollments);
   } catch (err) {
     res.status(500).json({ message: 'Sunucu hatası.' });
   }

@@ -54,6 +54,22 @@ export const createStudent = createAsyncThunk(
   }
 );
 
+// Asenkron thunk: Öğrenci güncelleme
+export const updateStudent = createAsyncThunk(
+  "student/updateStudent",
+  async (studentData: IStudent, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/students/${studentData._id}`, studentData);
+      return response.data;
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      return rejectWithValue(
+        (error.response?.data as { message?: string })?.message || error.message
+      );
+    }
+  }
+);
+
 // Asenkron thunk: Öğrenci silme
 export const deleteStudent = createAsyncThunk(
   "student/deleteStudent",
@@ -90,9 +106,21 @@ const studentSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(createStudent.fulfilled, (state) => {
-      
+      .addCase(createStudent.fulfilled, () => {
+        // Yeni öğrenci eklendiğinde state güncellenmez, 
+        // fetchStudents ile tekrar çekilir
       })
+      .addCase(
+        updateStudent.fulfilled,
+        (state, action: PayloadAction<IStudent>) => {
+          const index = state.students.findIndex(
+            (student) => student._id === action.payload._id
+          );
+          if (index !== -1) {
+            state.students[index] = action.payload;
+          }
+        }
+      )
       .addCase(
         deleteStudent.fulfilled,
         (state, action: PayloadAction<string>) => {

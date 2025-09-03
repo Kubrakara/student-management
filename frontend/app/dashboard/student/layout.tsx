@@ -30,6 +30,14 @@ const StudentLayout: React.FC<{ children: React.ReactNode }> = ({
             <ul>
               <li>
                 <Link
+                  href="/dashboard/student/profile"
+                  className="block py-2 px-4 text-gray-700 hover:bg-gray-200"
+                >
+                  Profil Yönetimi
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/dashboard/student/my-courses"
                   className="block py-2 px-4 text-gray-700 hover:bg-gray-200"
                 >

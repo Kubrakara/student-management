@@ -1,25 +1,35 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import api from "@/services/api";
+import { studentProfileAPI } from "@/services/api";
 import { ICourse } from "@/lib/features/course/courseSlice";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/features/user/userSlice";
-import { useRouter } from "next/navigation";
+import api from "@/services/api";
+
+interface IEnrollment {
+  _id: string;
+  courseId: ICourse;
+  studentId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  createdAt: string;
+}
 
 const MyCoursesPage: React.FC = () => {
   const dispatch = useDispatch();
-  const [courses, setCourses] = useState<ICourse[]>([]);
+  const [enrollments, setEnrollments] = useState<IEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
-    const fetchMyCourses = async () => {
+    const fetchMyEnrollments = async () => {
       try {
-        const response = await api.get("/enrollments/my-courses");
-        setCourses(response.data);
+        const data = await studentProfileAPI.getOwnEnrollments();
+        setEnrollments(data);
       } catch (err: unknown) {
         const error = err as AxiosError;
         if (
@@ -36,7 +46,7 @@ const MyCoursesPage: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchMyCourses();
+    fetchMyEnrollments();
   }, [dispatch]);
 
   if (loading) {
@@ -54,39 +64,50 @@ const MyCoursesPage: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6">
-        {courses.length === 0 ? (
+        {enrollments.length === 0 ? (
           <p className="text-gray-500">
             Henüz kayıtlı dersiniz bulunmamaktadır.
           </p>
         ) : (
-          <ul>
-            {courses.map((course: ICourse) => (
-              <li
-                key={course._id}
-                className="border-b py-2 flex justify-between items-center"
+          <div className="space-y-4">
+            {enrollments.map((enrollment: IEnrollment) => (
+              <div
+                key={enrollment._id}
+                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
               >
-                <span>{course.name}</span>
-                <button
-                  className="text-sm text-red-600 hover:text-red-800"
-                  onClick={async () => {
-                    try {
-                      await api.delete(`/enrollments/self/withdraw/${course._id}`);
-                      // sayfayı yenile
-                      setCourses((prev) => prev.filter((c) => c._id !== course._id));
-                    } catch (err: unknown) {
-                      const error = err as AxiosError;
-                      alert(
-                        (error.response?.data as { message?: string })?.message ||
-                          "Kaydı silme işlemi başarısız."
-                      );
-                    }
-                  }}
-                >
-                  Kaydı Sil
-                </button>
-              </li>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {enrollment.courseId.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Kayıt Tarihi: {new Date(enrollment.createdAt).toLocaleDateString('tr-TR')}
+                    </p>
+                  </div>
+                  <button
+                    className="text-sm text-red-600 hover:text-red-800 px-3 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors"
+                    onClick={async () => {
+                      if (confirm('Bu dersten kaydınızı silmek istediğinizden emin misiniz?')) {
+                        try {
+                          await api.delete(`/enrollments/self/withdraw/${enrollment.courseId._id}`);
+                          setEnrollments((prev) => prev.filter((e) => e._id !== enrollment._id));
+                          alert('Kayıt başarıyla silindi.');
+                        } catch (err: unknown) {
+                          const error = err as AxiosError;
+                          alert(
+                            (error.response?.data as { message?: string })?.message ||
+                              "Kaydı silme işlemi başarısız."
+                          );
+                        }
+                      }
+                    }}
+                  >
+                    Kaydı Sil
+                  </button>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

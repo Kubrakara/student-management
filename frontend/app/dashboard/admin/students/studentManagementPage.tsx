@@ -7,7 +7,6 @@ import {
   fetchStudents,
   createStudent,
   deleteStudent,
-  IStudent,
 } from "@/lib/features/student/studentSlice";
 import Button from "@/components/Button";
 import Input from "@/components/Input";

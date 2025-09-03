@@ -19,4 +19,29 @@ api.interceptors.request.use(
   }
 );
 
+// Öğrenci profil yönetimi API fonksiyonları
+export const studentProfileAPI = {
+  // Kendi profilini getir
+  getOwnProfile: async () => {
+    const response = await api.get('/students/profile/me');
+    return response.data;
+  },
+
+  // Kendi profilini güncelle
+  updateOwnProfile: async (profileData: {
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+  }) => {
+    const response = await api.put('/students/profile/me', profileData);
+    return response.data;
+  },
+
+  // Kendi kayıtlarını getir
+  getOwnEnrollments: async () => {
+    const response = await api.get('/students/enrollments/me');
+    return response.data;
+  }
+};
+
 export default api;
