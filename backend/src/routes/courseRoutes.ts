@@ -14,8 +14,8 @@ const router = express.Router();
 
 // Admin kullanıcılar için rotalar
 router.post("/", authMiddleware, authorizeRoles("admin"), createCourse);
-router.get("/", authMiddleware, authorizeRoles("admin"), getCourses);
-router.get("/:id", authMiddleware, authorizeRoles("admin"), getCourseById);
+router.get("/", authMiddleware, authorizeRoles("admin", "student"), getCourses);
+router.get("/:id", authMiddleware, authorizeRoles("admin", "student"), getCourseById);
 router.put("/:id", authMiddleware, authorizeRoles("admin"), updateCourse);
 router.delete("/:id", authMiddleware, authorizeRoles("admin"), deleteCourse);
 

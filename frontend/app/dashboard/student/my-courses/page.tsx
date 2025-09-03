@@ -6,12 +6,14 @@ import { ICourse } from "@/lib/features/course/courseSlice";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/features/user/userSlice";
+import { useRouter } from "next/navigation";
 
 const MyCoursesPage: React.FC = () => {
   const dispatch = useDispatch();
   const [courses, setCourses] = useState<ICourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchMyCourses = async () => {
@@ -64,6 +66,24 @@ const MyCoursesPage: React.FC = () => {
                 className="border-b py-2 flex justify-between items-center"
               >
                 <span>{course.name}</span>
+                <button
+                  className="text-sm text-red-600 hover:text-red-800"
+                  onClick={async () => {
+                    try {
+                      await api.delete(`/enrollments/self/withdraw/${course._id}`);
+                      // sayfayı yenile
+                      setCourses((prev) => prev.filter((c) => c._id !== course._id));
+                    } catch (err: unknown) {
+                      const error = err as AxiosError;
+                      alert(
+                        (error.response?.data as { message?: string })?.message ||
+                          "Kaydı silme işlemi başarısız."
+                      );
+                    }
+                  }}
+                >
+                  Kaydı Sil
+                </button>
               </li>
             ))}
           </ul>

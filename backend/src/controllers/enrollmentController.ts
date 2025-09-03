@@ -3,6 +3,7 @@ import Enrollment from "../models/Enrollment";
 import Student from "../models/Student";
 import Course from "../models/Course";
 import { IRequest } from "../middlewares/authMiddleware";
+import User from "../models/User";
 
 // Admin öğrenciyi bir derse kaydeder
 export const enrollStudentInCourse = async (req: IRequest, res: Response) => {
@@ -35,6 +36,38 @@ export const enrollStudentInCourse = async (req: IRequest, res: Response) => {
   }
 };
 
+// Öğrencinin kendi kendine derse kaydolması
+export const selfEnrollInCourse = async (req: IRequest, res: Response) => {
+  const { courseId } = req.body;
+
+  if (!courseId) {
+    return res.status(400).json({ message: "Ders bilgisi eksik." });
+  }
+
+  try {
+    const userId = req.user?.userId;
+    const user = await User.findById(userId);
+    if (!user || !user.studentId) {
+      return res.status(404).json({ message: "Öğrenci bulunamadı." });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: "Ders bulunamadı." });
+    }
+
+    const enrollment = new Enrollment({ student: user.studentId, course: courseId });
+    await enrollment.save();
+
+    res.status(201).json({ message: "Derse başarıyla kaydolundu." });
+  } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({ message: "Bu derse zaten kayıtlısınız." });
+    }
+    res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
 // Admin tüm kayıtları listeler
 export const getEnrollments = async (req: IRequest, res: Response) => {
   try {
@@ -60,6 +93,49 @@ export const withdrawFromCourse = async (req: IRequest, res: Response) => {
     }
 
     res.status(200).json({ message: "Kayıt başarıyla silindi." });
+  } catch (err) {
+    res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
+// Öğrencinin kendi kaydını silmesi
+export const selfWithdrawFromCourse = async (req: IRequest, res: Response) => {
+  const { courseId } = req.params;
+
+  try {
+    const userId = req.user?.userId;
+    const user = await User.findById(userId);
+    if (!user || !user.studentId) {
+      return res.status(404).json({ message: "Öğrenci bulunamadı." });
+    }
+
+    const result = await Enrollment.deleteOne({ student: user.studentId, course: courseId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "Kayıt bulunamadı." });
+    }
+
+    res.status(200).json({ message: "Kayıt başarıyla silindi." });
+  } catch (err) {
+    res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
+// Öğrencinin kayıtlı derslerini listelemesi
+export const getMyCourses = async (req: IRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    const user = await User.findById(userId);
+    if (!user || !user.studentId) {
+      return res.status(404).json({ message: "Öğrenci bulunamadı." });
+    }
+
+    const enrollments = await Enrollment.find({ student: user.studentId }).populate("course", "name");
+    const courses = enrollments.map((e) => ({
+      _id: (e.course as any)._id,
+      name: (e.course as any).name,
+    }));
+
+    res.status(200).json(courses);
   } catch (err) {
     res.status(500).json({ message: "Sunucu hatası." });
   }

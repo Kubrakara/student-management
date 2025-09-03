@@ -20,20 +20,26 @@ const CourseManagementPage: React.FC = () => {
   const [newCourseName, setNewCourseName] = useState("");
 
   useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchCourses());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchCourses());
+  }, [dispatch]);
 
   const handleCreateCourse = () => {
     if (newCourseName) {
-      dispatch(createCourse({ name: newCourseName }));
+      dispatch(createCourse({ name: newCourseName }))
+        .unwrap()
+        .then(() => {
+          dispatch(fetchCourses());
+        });
       setNewCourseName("");
     }
   };
 
   const handleDeleteCourse = (id: string) => {
-    dispatch(deleteCourse(id));
+    dispatch(deleteCourse(id))
+      .unwrap()
+      .then(() => {
+        dispatch(fetchCourses());
+      });
   };
 
   if (status === "loading") {
