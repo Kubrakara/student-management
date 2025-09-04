@@ -38,9 +38,14 @@ export const studentProfileAPI = {
   },
 
   // Kendi kayıtlarını getir
-  getOwnEnrollments: async () => {
-    const response = await api.get('/students/enrollments/me');
-    return response.data;
+  getOwnEnrollments: async (params?: { page?: number; limit?: number }) => {
+    const response = await api.get('/students/enrollments/me', { params });
+    return response.data as {
+      enrollments: Array<{ _id: string; course: { _id: string; name: string }; student: { _id: string; firstName: string; lastName: string }; createdAt: string }>;
+      totalCount: number;
+      page: number;
+      totalPages: number;
+    };
   }
 };
 

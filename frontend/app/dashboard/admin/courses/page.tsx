@@ -17,14 +17,23 @@ const CourseManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const courses = useSelector((state: RootState) => state.course.courses);
   const status = useSelector((state: RootState) => state.course.status);
+  const page = useSelector((state: RootState) => state.course.page);
+  const totalPages = useSelector((state: RootState) => state.course.totalPages);
+  const totalCount = useSelector((state: RootState) => state.course.totalCount);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(() => {
+    if (typeof window === "undefined") return 10;
+    const saved = window.localStorage.getItem("admin_courses_pageSize");
+    return saved ? Number(saved) : 10;
+  });
 
   const [newCourseName, setNewCourseName] = useState("");
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [editingCourseName, setEditingCourseName] = useState<string>("");
 
   useEffect(() => {
-    dispatch(fetchCourses());
-  }, [dispatch]);
+    dispatch(fetchCourses({ page: currentPage, limit: pageSize }));
+  }, [dispatch, currentPage, pageSize]);
 
   const handleCreateCourse = () => {
     if (newCourseName) {
@@ -92,8 +101,31 @@ const CourseManagementPage: React.FC = () => {
       
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-xl font-semibold mb-4">
-          Ders Listesi ({courses.length})
+          Ders Listesi ({totalCount})
         </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div />
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Sayfa boyutu:</label>
+            <select
+              className="border rounded px-2 py-1"
+              value={pageSize}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setPageSize(next);
+                if (typeof window !== "undefined") {
+                  window.localStorage.setItem("admin_courses_pageSize", String(next));
+                }
+                setCurrentPage(1);
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
         <ul>
           {courses.map((course: ICourse) => (
             <li
@@ -144,6 +176,41 @@ const CourseManagementPage: React.FC = () => {
             </li>
           ))}
         </ul>
+        <div className="flex items-center justify-between mt-4">
+          <button
+            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+          >
+            Önceki
+          </button>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((n) => n === 1 || n === totalPages || (n >= currentPage - 2 && n <= currentPage + 2))
+              .map((n, idx, arr) => {
+                const prev = arr[idx - 1];
+                const needEllipsis = prev && n - prev > 1;
+                return (
+                  <React.Fragment key={n}>
+                    {needEllipsis && <span className="px-2">…</span>}
+                    <button
+                      className={`px-3 py-1 rounded ${n === page ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                      onClick={() => setCurrentPage(n)}
+                    >
+                      {n}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+          </div>
+          <button
+            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={page >= totalPages}
+          >
+            Sonraki
+          </button>
+        </div>
       </div>
     </div>
   );

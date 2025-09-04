@@ -147,13 +147,21 @@ export const getOwnEnrollments = async (req: IRequest, res: Response) => {
       return res.status(404).json({ message: 'Öğrenci profili bulunamadı.' });
     }
 
-    // Enrollment şeması alan adları: student, course
-    const enrollments = await Enrollment.find({ student: user.studentId })
-      .populate('course', 'name')
-      .populate('student', 'firstName lastName')
-      .sort({ createdAt: -1 }); // En yeni kayıtlar önce
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json(enrollments);
+    const [enrollments, totalCount] = await Promise.all([
+      Enrollment.find({ student: user.studentId })
+        .populate('course', 'name')
+        .populate('student', 'firstName lastName')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Enrollment.countDocuments({ student: user.studentId })
+    ]);
+
+    res.status(200).json({ enrollments, totalCount, page, totalPages: Math.ceil(totalCount / limit) });
   } catch (err) {
     res.status(500).json({ message: 'Sunucu hatası.' });
   }

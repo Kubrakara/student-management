@@ -70,12 +70,26 @@ export const selfEnrollInCourse = async (req: IRequest, res: Response) => {
 
 // Admin tüm kayıtları listeler
 export const getEnrollments = async (req: IRequest, res: Response) => {
-  try {
-    const enrollments = await Enrollment.find()
-      .populate("student", "firstName lastName")
-      .populate("course", "name");
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * limit;
 
-    res.status(200).json(enrollments);
+  try {
+    const [enrollments, totalCount] = await Promise.all([
+      Enrollment.find()
+        .populate("student", "firstName lastName")
+        .populate("course", "name")
+        .skip(skip)
+        .limit(limit),
+      Enrollment.countDocuments(),
+    ]);
+
+    res.status(200).json({
+      enrollments,
+      totalCount,
+      page,
+      totalPages: Math.ceil(totalCount / limit),
+    });
   } catch (err) {
     res.status(500).json({ message: "Sunucu hatası." });
   }

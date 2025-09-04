@@ -11,20 +11,38 @@ interface CourseState {
   courses: ICourse[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
 }
 
 const initialState: CourseState = {
   courses: [],
   status: "idle",
   error: null,
+  page: 1,
+  limit: 10,
+  totalCount: 0,
+  totalPages: 0,
 };
 
 export const fetchCourses = createAsyncThunk(
   "course/fetchCourses",
-  async (_, { rejectWithValue }) => {
+  async (
+    params: { page?: number; limit?: number } | undefined,
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await api.get("/courses");
-      return response.data.courses;
+      const page = params?.page ?? 1;
+      const limit = params?.limit ?? 10;
+      const response = await api.get("/courses", { params: { page, limit } });
+      return response.data as {
+        courses: ICourse[];
+        totalCount: number;
+        page: number;
+        totalPages: number;
+      };
     } catch (err: unknown) {
       const error = err as AxiosError;
       return rejectWithValue(
@@ -95,9 +113,20 @@ const courseSlice = createSlice({
       })
       .addCase(
         fetchCourses.fulfilled,
-        (state, action: PayloadAction<ICourse[]>) => {
+        (
+          state,
+          action: PayloadAction<{
+            courses: ICourse[];
+            totalCount: number;
+            page: number;
+            totalPages: number;
+          }>
+        ) => {
           state.status = "succeeded";
-          state.courses = action.payload;
+          state.courses = action.payload.courses;
+          state.totalCount = action.payload.totalCount;
+          state.page = action.payload.page;
+          state.totalPages = action.payload.totalPages;
         }
       )
       .addCase(fetchCourses.rejected, (state, action) => {
