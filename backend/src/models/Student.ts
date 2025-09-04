@@ -4,6 +4,8 @@ export interface IStudent extends Document {
   firstName: string;
   lastName: string;
   birthDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Mongoose şeması

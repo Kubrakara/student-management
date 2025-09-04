@@ -7,9 +7,11 @@ import {
   fetchStudents,
   createStudent,
   deleteStudent,
+  IStudent,
 } from "@/lib/features/student/studentSlice";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import StudentDetailModal from "@/components/StudentDetailModal";
 
 type NewStudentData = {
   firstName: string;
@@ -32,6 +34,9 @@ const StudentManagementPage: React.FC = () => {
     const saved = window.localStorage.getItem("admin_students_pageSize");
     return saved ? Number(saved) : 10;
   });
+  const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formError, setFormError] = useState<string>("");
 
   const [newStudent, setNewStudent] = useState<NewStudentData>({
     firstName: "",
@@ -42,16 +47,20 @@ const StudentManagementPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
-    }
-  }, [status, dispatch, pageSize, currentPage]);
-
-  useEffect(() => {
-    dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
+    const loadStudents = async () => {
+      try {
+        await dispatch(fetchStudents({ page: currentPage, limit: pageSize })).unwrap();
+      } catch (error) {
+        console.error('Öğrenciler yüklenirken hata:', error);
+      }
+    };
+    loadStudents();
   }, [dispatch, currentPage, pageSize]);
 
   const handleCreateStudent = () => {
+    setFormError("");
+
+    // Alan kontrolü
     if (
       newStudent.firstName &&
       newStudent.lastName &&
@@ -59,11 +68,26 @@ const StudentManagementPage: React.FC = () => {
       newStudent.username &&
       newStudent.password
     ) {
+      // Doğum tarihi gelecekte olamaz (istemci doğrulaması)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selected = new Date(newStudent.birthDate);
+      selected.setHours(0, 0, 0, 0);
+
+      if (selected.getTime() > today.getTime()) {
+        setFormError("Doğum tarihi gelecekte olamaz.");
+        return;
+      }
+
       dispatch(createStudent(newStudent))
         .unwrap()
         .then(() => {
-          // Yeni bir öğrenci eklendikten sonra listeyi tekrar çek
-          dispatch(fetchStudents());
+          // Yeni öğrenci eklendikten sonra listeyi tekrar çek
+          dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
+          setFormError(""); // Başarılı olduğunda hata mesajını temizle
+        })
+        .catch((error) => {
+          setFormError(error || "Öğrenci eklenirken hata oluştu.");
         });
       setNewStudent({
         firstName: "",
@@ -72,6 +96,8 @@ const StudentManagementPage: React.FC = () => {
         username: "",
         password: "",
       });
+    } else {
+      setFormError("Lütfen tüm alanları doldurun.");
     }
   };
 
@@ -79,12 +105,37 @@ const StudentManagementPage: React.FC = () => {
     dispatch(deleteStudent(id))
       .unwrap()
       .then(() => {
-        dispatch(fetchStudents());
+        // Eğer mevcut sayfada sadece 1 öğrenci varsa ve o siliniyorsa, önceki sayfaya git
+        if (students.length === 1 && currentPage > 1) {
+          const newPage = currentPage - 1;
+          setCurrentPage(newPage);
+          dispatch(fetchStudents({ page: newPage, limit: pageSize }));
+        } else {
+          // Normal durumda mevcut sayfayı yenile
+          dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
+        }
+      })
+      .catch((error) => {
+        console.error('Öğrenci silinirken hata:', error);
       });
   };
 
+  const handleStudentClick = (student: IStudent) => {
+    setSelectedStudent(student);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedStudent(null);
+  };
+
   if (status === "loading") {
-    return <div className="text-center mt-10">Yükleniyor...</div>;
+    return <div className="text-center mt-10">Öğrenciler yükleniyor...</div>;
+  }
+
+  if (status === "failed") {
+    return <div className="text-center mt-10 text-red-500">Veriler yüklenirken hata oluştu.</div>;
   }
 
   return (
@@ -96,6 +147,11 @@ const StudentManagementPage: React.FC = () => {
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h3 className="text-xl font-semibold mb-4">Yeni Öğrenci Ekle</h3>
+        {formError && (
+          <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-300">
+            {formError}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <Input
             label="Ad"
@@ -167,16 +223,31 @@ const StudentManagementPage: React.FC = () => {
           </div>
         </div>
         <ul>
-          {students.map((student) => (
+          {students.length === 0 ? (
+            <li className="text-center py-4 text-gray-500">
+              {status === "succeeded" ? "Henüz öğrenci bulunmamaktadır." : "Öğrenciler yükleniyor..."}
+            </li>
+          ) : (
+            students.map((student) => (
             <li
               key={student._id}
               className="border-b py-2 flex justify-between items-center"
             >
-              <span>
-                {student.firstName} {student.lastName}
-              </span>
+              <div>
+                <span className="font-medium">
+                  {student.firstName} {student.lastName}
+                </span>
+                {student.username && (
+                  <span className="text-sm text-gray-500 ml-2">
+                    (@{student.username})
+                  </span>
+                )}
+              </div>
               <div className="space-x-2">
-                <button className="text-sm text-blue-500 hover:text-blue-700">
+                <button 
+                  className="text-sm text-blue-500 hover:text-blue-700"
+                  onClick={() => handleStudentClick(student)}
+                >
                   Detay
                 </button>
                 <button className="text-sm text-yellow-500 hover:text-yellow-700">
@@ -190,7 +261,8 @@ const StudentManagementPage: React.FC = () => {
                 </button>
               </div>
             </li>
-          ))}
+            ))
+          )}
         </ul>
         <div className="flex items-center justify-between mt-4">
           <button
@@ -235,6 +307,12 @@ const StudentManagementPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <StudentDetailModal
+        student={selectedStudent}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

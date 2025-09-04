@@ -7,8 +7,10 @@ export interface IStudent {
   firstName: string;
   lastName: string;
   birthDate: string;
-  username: string; 
-  password: string; 
+  username?: string; 
+  password?: string; 
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface StudentState {
@@ -135,9 +137,11 @@ const studentSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(createStudent.fulfilled, () => {
-        // Yeni öğrenci eklendiğinde state güncellenmez, 
-        // fetchStudents ile tekrar çekilir
+      .addCase(createStudent.fulfilled, (state) => {
+        // Yeni öğrenci eklendiğinde total count'u artır
+        state.totalCount += 1;
+        // Total pages'ı yeniden hesapla
+        state.totalPages = Math.ceil(state.totalCount / state.limit);
       })
       .addCase(
         updateStudent.fulfilled,
@@ -156,6 +160,10 @@ const studentSlice = createSlice({
           state.students = state.students.filter(
             (student) => student._id !== action.payload
           );
+          // Total count'u da güncelle
+          state.totalCount = Math.max(0, state.totalCount - 1);
+          // Total pages'ı yeniden hesapla
+          state.totalPages = Math.ceil(state.totalCount / state.limit);
         }
       );
   },

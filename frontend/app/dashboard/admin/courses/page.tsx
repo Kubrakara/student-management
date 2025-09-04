@@ -12,6 +12,7 @@ import {
 } from "@/lib/features/course/courseSlice";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import CourseDetailModal from "@/components/CourseDetailModal";
 
 const CourseManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,13 +27,22 @@ const CourseManagementPage: React.FC = () => {
     const saved = window.localStorage.getItem("admin_courses_pageSize");
     return saved ? Number(saved) : 10;
   });
+  const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [newCourseName, setNewCourseName] = useState("");
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [editingCourseName, setEditingCourseName] = useState<string>("");
 
   useEffect(() => {
-    dispatch(fetchCourses({ page: currentPage, limit: pageSize }));
+    const loadCourses = async () => {
+      try {
+        await dispatch(fetchCourses({ page: currentPage, limit: pageSize })).unwrap();
+      } catch (error) {
+        console.error('Dersler yüklenirken hata:', error);
+      }
+    };
+    loadCourses();
   }, [dispatch, currentPage, pageSize]);
 
   const handleCreateCourse = () => {
@@ -40,7 +50,7 @@ const CourseManagementPage: React.FC = () => {
       dispatch(createCourse({ name: newCourseName }))
         .unwrap()
         .then(() => {
-          dispatch(fetchCourses());
+          dispatch(fetchCourses({ page: currentPage, limit: pageSize }));
         });
       setNewCourseName("");
     }
@@ -50,7 +60,7 @@ const CourseManagementPage: React.FC = () => {
     dispatch(deleteCourse(id))
       .unwrap()
       .then(() => {
-        dispatch(fetchCourses());
+        dispatch(fetchCourses({ page: currentPage, limit: pageSize }));
       });
   };
 
@@ -73,12 +83,26 @@ const CourseManagementPage: React.FC = () => {
       .then(() => {
         setEditingCourseId(null);
         setEditingCourseName("");
-        dispatch(fetchCourses());
+        dispatch(fetchCourses({ page: currentPage, limit: pageSize }));
       });
   };
 
+  const handleCourseClick = (course: ICourse) => {
+    setSelectedCourse(course);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCourse(null);
+  };
+
   if (status === "loading") {
-    return <div className="text-center mt-10">Yükleniyor...</div>;
+    return <div className="text-center mt-10">Dersler yükleniyor...</div>;
+  }
+
+  if (status === "failed") {
+    return <div className="text-center mt-10 text-red-500">Veriler yüklenirken hata oluştu.</div>;
   }
 
   return (
@@ -127,7 +151,12 @@ const CourseManagementPage: React.FC = () => {
           </div>
         </div>
         <ul>
-          {courses.map((course: ICourse) => (
+          {courses.length === 0 ? (
+            <li className="text-center py-4 text-gray-500">
+              {status === "succeeded" ? "Henüz ders bulunmamaktadır." : "Dersler yükleniyor..."}
+            </li>
+          ) : (
+            courses.map((course: ICourse) => (
             <li
               key={course._id}
               className="border-b py-2 flex justify-between items-center"
@@ -159,12 +188,20 @@ const CourseManagementPage: React.FC = () => {
                     </button>
                   </>
                 ) : (
-                  <button
-                    className="text-sm text-yellow-500 hover:text-yellow-700"
-                    onClick={() => startEdit(course)}
-                  >
-                    Düzenle
-                  </button>
+                  <>
+                    <button
+                      className="text-sm text-blue-500 hover:text-blue-700"
+                      onClick={() => handleCourseClick(course)}
+                    >
+                      Detay
+                    </button>
+                    <button
+                      className="text-sm text-yellow-500 hover:text-yellow-700"
+                      onClick={() => startEdit(course)}
+                    >
+                      Düzenle
+                    </button>
+                  </>
                 )}
                 <button
                   className="text-sm text-red-500 hover:text-red-700"
@@ -174,7 +211,8 @@ const CourseManagementPage: React.FC = () => {
                 </button>
               </div>
             </li>
-          ))}
+            ))
+          )}
         </ul>
         <div className="flex items-center justify-between mt-4">
           <button
@@ -212,6 +250,12 @@ const CourseManagementPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <CourseDetailModal
+        course={selectedCourse}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

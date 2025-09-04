@@ -6,6 +6,8 @@ export interface IUser extends Document {
   password?: string;
   role: "admin" | "student";
   studentId?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

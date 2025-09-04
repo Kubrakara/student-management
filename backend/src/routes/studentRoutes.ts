@@ -9,7 +9,8 @@ import {
   deleteStudent,
   getOwnProfile,
   updateOwnProfile,
-  getOwnEnrollments
+  getOwnEnrollments,
+  getStudentEnrollments
 } from '../controllers/studentController';
 import authMiddleware, { authorizeRoles } from '../middlewares/authMiddleware';
 
@@ -19,6 +20,7 @@ const router = express.Router();
 router.post('/', authMiddleware, authorizeRoles('admin'), createStudent);
 router.get('/', authMiddleware, authorizeRoles('admin'), getStudents);
 router.get('/:id', authMiddleware, authorizeRoles('admin'), getStudentById);
+router.get('/:studentId/enrollments', authMiddleware, authorizeRoles('admin'), getStudentEnrollments);
 router.put('/:id', authMiddleware, authorizeRoles('admin'), updateStudent);
 router.delete('/:id', authMiddleware, authorizeRoles('admin'), deleteStudent);
 

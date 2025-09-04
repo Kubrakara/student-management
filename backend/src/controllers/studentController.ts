@@ -28,10 +28,47 @@ export const getStudents = async (req: Request, res: Response) => {
   const skip = (page - 1) * limit;
 
   try {
-    const students = await Student.find().skip(skip).limit(limit);
+    // Student ve User tablolarını join ederek veri çek
+    const students = await Student.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: 'studentId',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          username: '$user.username'
+        }
+      },
+      {
+        $project: {
+          user: 0
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: limit
+      }
+    ]);
+
     const totalCount = await Student.countDocuments();
     res.status(200).json({ students, totalCount, page, totalPages: Math.ceil(totalCount / limit) });
   } catch (err) {
+    console.error('Öğrenci listeleme hatası:', err);
     res.status(500).json({ message: 'Sunucu hatası.' });
   }
 };
@@ -68,12 +105,29 @@ export const updateStudent = async (req: Request, res: Response) => {
 // Öğrenciyi sil
 export const deleteStudent = async (req: Request, res: Response) => {
   try {
-    const student = await Student.findByIdAndDelete(req.params.id);
+    const studentId = req.params.id;
+    
+    // Önce öğrenciyi bul
+    const student = await Student.findById(studentId);
     if (!student) {
       return res.status(404).json({ message: 'Öğrenci bulunamadı.' });
     }
-    res.status(200).json({ message: 'Öğrenci başarıyla silindi.' });
+
+    // İlgili User kaydını bul ve sil
+    const user = await User.findOne({ studentId: studentId });
+    if (user) {
+      await User.findByIdAndDelete(user._id);
+    }
+
+    // Öğrenci kayıtlarını sil (enrollments)
+    await Enrollment.deleteMany({ student: studentId });
+
+    // Son olarak öğrenciyi sil
+    await Student.findByIdAndDelete(studentId);
+
+    res.status(200).json({ message: 'Öğrenci ve ilgili tüm kayıtlar başarıyla silindi.' });
   } catch (err) {
+    console.error('Öğrenci silme hatası:', err);
     res.status(500).json({ message: 'Sunucu hatası.' });
   }
 };
@@ -131,6 +185,30 @@ export const updateOwnProfile = async (req: IRequest, res: Response) => {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: err.message });
     }
+    res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+};
+
+// Admin bir öğrencinin kayıtlarını getir
+export const getStudentEnrollments = async (req: Request, res: Response) => {
+  try {
+    const studentId = req.params.studentId;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [enrollments, totalCount] = await Promise.all([
+      Enrollment.find({ student: studentId })
+        .populate('course', 'name')
+        .populate('student', 'firstName lastName')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Enrollment.countDocuments({ student: studentId })
+    ]);
+
+    res.status(200).json({ enrollments, totalCount, page, totalPages: Math.ceil(totalCount / limit) });
+  } catch (err) {
     res.status(500).json({ message: 'Sunucu hatası.' });
   }
 };

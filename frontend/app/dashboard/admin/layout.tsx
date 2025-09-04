@@ -51,6 +51,14 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   Kayıt Yönetimi
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/dashboard/admin/users"
+                  className="block py-2 px-4 text-gray-700 hover:bg-gray-200"
+                >
+                  Kullanıcı Yönetimi
+                </Link>
+              </li>
               
             </ul>
           </nav>
