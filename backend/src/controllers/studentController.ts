@@ -147,9 +147,10 @@ export const getOwnEnrollments = async (req: IRequest, res: Response) => {
       return res.status(404).json({ message: 'Öğrenci profili bulunamadı.' });
     }
 
-    const enrollments = await Enrollment.find({ studentId: user.studentId })
-      .populate('courseId', 'name')
-      .populate('studentId', 'firstName lastName')
+    // Enrollment şeması alan adları: student, course
+    const enrollments = await Enrollment.find({ student: user.studentId })
+      .populate('course', 'name')
+      .populate('student', 'firstName lastName')
       .sort({ createdAt: -1 }); // En yeni kayıtlar önce
 
     res.status(200).json(enrollments);

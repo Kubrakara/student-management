@@ -10,8 +10,8 @@ import api from "@/services/api";
 
 interface IEnrollment {
   _id: string;
-  courseId: ICourse;
-  studentId: {
+  course: ICourse;
+  student: {
     _id: string;
     firstName: string;
     lastName: string;
@@ -78,7 +78,7 @@ const MyCoursesPage: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {enrollment.courseId.name}
+                      {enrollment.course.name}
                     </h3>
                     <p className="text-sm text-gray-500 mt-2">
                       Kayıt Tarihi: {new Date(enrollment.createdAt).toLocaleDateString('tr-TR')}
@@ -89,7 +89,7 @@ const MyCoursesPage: React.FC = () => {
                     onClick={async () => {
                       if (confirm('Bu dersten kaydınızı silmek istediğinizden emin misiniz?')) {
                         try {
-                          await api.delete(`/enrollments/self/withdraw/${enrollment.courseId._id}`);
+                          await api.delete(`/enrollments/self/withdraw/${enrollment.course._id}`);
                           setEnrollments((prev) => prev.filter((e) => e._id !== enrollment._id));
                           alert('Kayıt başarıyla silindi.');
                         } catch (err: unknown) {

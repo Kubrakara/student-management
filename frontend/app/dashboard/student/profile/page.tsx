@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/lib/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/lib/store";
 import { updateStudent } from "@/lib/features/student/studentSlice";
 import { studentProfileAPI } from "@/services/api";
 import Button from "@/components/Button";
@@ -17,7 +17,6 @@ interface StudentProfile {
 
 const StudentProfilePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { role } = useSelector((state: RootState) => state.user);
   
   const [profile, setProfile] = useState<StudentProfile>({
     _id: "",
@@ -103,18 +102,6 @@ const StudentProfilePage: React.FC = () => {
         )}
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kullanıcı Rolü
-            </label>
-            <Input
-              type="text"
-              value={role || ""}
-              disabled
-              className="bg-gray-100 cursor-not-allowed"
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ad
