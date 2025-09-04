@@ -7,6 +7,7 @@ import {
   fetchStudents,
   createStudent,
   deleteStudent,
+  updateStudent,
   IStudent,
 } from "@/lib/features/student/studentSlice";
 import Button from "@/components/Button";
@@ -36,7 +37,9 @@ const StudentManagementPage: React.FC = () => {
   });
   const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formError, setFormError] = useState<string>("");
+  const [editFormError, setEditFormError] = useState<string>("");
 
   const [newStudent, setNewStudent] = useState<NewStudentData>({
     firstName: "",
@@ -45,6 +48,8 @@ const StudentManagementPage: React.FC = () => {
     username: "",
     password: "",
   });
+
+  const [editStudent, setEditStudent] = useState<Partial<IStudent>>({});
 
   useEffect(() => {
     const loadStudents = async () => {
@@ -128,6 +133,56 @@ const StudentManagementPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedStudent(null);
+  };
+
+  const handleEditStudent = (student: IStudent) => {
+    setEditStudent({
+      _id: student._id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      birthDate: student.birthDate,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditStudent({});
+    setEditFormError("");
+  };
+
+  const handleUpdateStudent = () => {
+    if (!editStudent._id) return;
+
+    setEditFormError("");
+
+    // Alan kontrolü
+    if (!editStudent.firstName || !editStudent.lastName || !editStudent.birthDate) {
+      setEditFormError("Lütfen tüm alanları doldurun.");
+      return;
+    }
+
+    // Doğum tarihi gelecekte olamaz
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(editStudent.birthDate);
+    selected.setHours(0, 0, 0, 0);
+
+    if (selected.getTime() > today.getTime()) {
+      setEditFormError("Doğum tarihi gelecekte olamaz.");
+      return;
+    }
+
+    dispatch(updateStudent(editStudent as IStudent))
+      .unwrap()
+      .then(() => {
+        // Başarılı olduğunda listeyi yenile
+        dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
+        handleCloseEditModal();
+      })
+      .catch((error) => {
+        setEditFormError(error || "Öğrenci güncellenirken hata oluştu.");
+      });
   };
 
   if (status === "loading") {
@@ -250,7 +305,10 @@ const StudentManagementPage: React.FC = () => {
                 >
                   Detay
                 </button>
-                <button className="text-sm text-yellow-500 hover:text-yellow-700">
+                <button 
+                  className="text-sm text-yellow-500 hover:text-yellow-700"
+                  onClick={() => handleEditStudent(student)}
+                >
                   Düzenle
                 </button>
                 <button
@@ -313,6 +371,58 @@ const StudentManagementPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
+
+      {/* Düzenleme Modal'ı */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border">
+            <h3 className="text-xl font-semibold mb-4">Öğrenci Düzenle</h3>
+            {editFormError && (
+              <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-300">
+                {editFormError}
+              </div>
+            )}
+            <div className="space-y-4">
+              <Input
+                label="Ad"
+                value={editStudent.firstName || ""}
+                onChange={(e) =>
+                  setEditStudent({ ...editStudent, firstName: e.target.value })
+                }
+              />
+              <Input
+                label="Soyad"
+                value={editStudent.lastName || ""}
+                onChange={(e) =>
+                  setEditStudent({ ...editStudent, lastName: e.target.value })
+                }
+              />
+              <Input
+                label="Doğum Tarihi"
+                type="date"
+                value={editStudent.birthDate || ""}
+                onChange={(e) =>
+                  setEditStudent({ ...editStudent, birthDate: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex gap-2 mt-6">
+              <Button 
+                onClick={handleUpdateStudent}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Güncelle
+              </Button>
+              <Button 
+                onClick={handleCloseEditModal}
+                className="bg-gray-500 hover:bg-gray-600"
+              >
+                İptal
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

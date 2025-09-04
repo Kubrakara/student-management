@@ -106,6 +106,7 @@ export const deleteStudent = createAsyncThunk(
   }
 );
 
+
 const studentSlice = createSlice({
   name: "student",
   initialState,
