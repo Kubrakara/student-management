@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/lib/store";
-import { updateStudent } from "@/lib/features/student/studentSlice";
 import { studentProfileAPI } from "@/services/api";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
@@ -58,8 +57,6 @@ const StudentProfilePage: React.FC = () => {
         lastName: profile.lastName,
         birthDate: profile.birthDate
       });
-      
-      dispatch(updateStudent(updatedStudent));
       setMessage("Profil başarıyla güncellendi!");
       setIsEditing(false);
     } catch (err: unknown) {

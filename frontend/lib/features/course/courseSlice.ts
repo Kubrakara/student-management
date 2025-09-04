@@ -65,6 +65,24 @@ export const deleteCourse = createAsyncThunk(
   }
 );
 
+export const updateCourse = createAsyncThunk(
+  "course/updateCourse",
+  async (
+    { courseId, updates }: { courseId: string; updates: Partial<Omit<ICourse, "_id">> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.put(`/courses/${courseId}`, updates);
+      return response.data as ICourse;
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      return rejectWithValue(
+        (error.response?.data as { message?: string })?.message || error.message
+      );
+    }
+  }
+);
+
 const courseSlice = createSlice({
   name: "course",
   initialState,
@@ -100,6 +118,16 @@ const courseSlice = createSlice({
           state.courses = state.courses.filter(
             (course) => course._id !== action.payload
           );
+        }
+      )
+      // updateCourse için reducer
+      .addCase(
+        updateCourse.fulfilled,
+        (state, action: PayloadAction<ICourse>) => {
+          const index = state.courses.findIndex(c => c._id === action.payload._id);
+          if (index !== -1) {
+            state.courses[index] = action.payload;
+          }
         }
       );
   },

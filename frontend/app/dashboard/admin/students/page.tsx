@@ -32,6 +32,8 @@ const StudentManagementPage: React.FC = () => {
     password: "",
   });
 
+  const [formError, setFormError] = useState<string>("");
+
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchStudents());
@@ -39,6 +41,9 @@ const StudentManagementPage: React.FC = () => {
   }, [status, dispatch]);
 
   const handleCreateStudent = () => {
+    setFormError("");
+
+    // Alan kontrolü
     if (
       newStudent.firstName &&
       newStudent.lastName &&
@@ -46,6 +51,17 @@ const StudentManagementPage: React.FC = () => {
       newStudent.username &&
       newStudent.password
     ) {
+      // Doğum tarihi gelecekte olamaz (istemci doğrulaması)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selected = new Date(newStudent.birthDate);
+      selected.setHours(0, 0, 0, 0);
+
+      if (selected.getTime() > today.getTime()) {
+        setFormError("Doğum tarihi gelecekte olamaz.");
+        return;
+      }
+
       dispatch(createStudent(newStudent))
         .unwrap()
         .then(() => {
@@ -59,6 +75,8 @@ const StudentManagementPage: React.FC = () => {
         username: "",
         password: "",
       });
+    } else {
+      setFormError("Lütfen tüm alanları doldurun.");
     }
   };
 
@@ -82,6 +100,11 @@ const StudentManagementPage: React.FC = () => {
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h3 className="text-xl font-semibold mb-4">Yeni Öğrenci Ekle</h3>
+        {formError && (
+          <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-300">
+            {formError}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <Input
             label="Ad"
@@ -101,6 +124,7 @@ const StudentManagementPage: React.FC = () => {
             label="Doğum Tarihi"
             type="date"
             value={newStudent.birthDate}
+            max={new Date().toISOString().split('T')[0]}
             onChange={(e) =>
               setNewStudent({ ...newStudent, birthDate: e.target.value })
             }

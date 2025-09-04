@@ -7,6 +7,7 @@ import {
   fetchCourses,
   createCourse,
   deleteCourse,
+  updateCourse,
   ICourse,
 } from "@/lib/features/course/courseSlice";
 import Button from "@/components/Button";
@@ -18,6 +19,8 @@ const CourseManagementPage: React.FC = () => {
   const status = useSelector((state: RootState) => state.course.status);
 
   const [newCourseName, setNewCourseName] = useState("");
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [editingCourseName, setEditingCourseName] = useState<string>("");
 
   useEffect(() => {
     dispatch(fetchCourses());
@@ -38,6 +41,29 @@ const CourseManagementPage: React.FC = () => {
     dispatch(deleteCourse(id))
       .unwrap()
       .then(() => {
+        dispatch(fetchCourses());
+      });
+  };
+
+  const startEdit = (course: ICourse) => {
+    setEditingCourseId(course._id);
+    setEditingCourseName(course.name);
+  };
+
+  const cancelEdit = () => {
+    setEditingCourseId(null);
+    setEditingCourseName("");
+  };
+
+  const saveEdit = () => {
+    if (!editingCourseId) return;
+    const name = editingCourseName.trim();
+    if (!name) return;
+    dispatch(updateCourse({ courseId: editingCourseId, updates: { name } }))
+      .unwrap()
+      .then(() => {
+        setEditingCourseId(null);
+        setEditingCourseName("");
         dispatch(fetchCourses());
       });
   };
@@ -74,11 +100,40 @@ const CourseManagementPage: React.FC = () => {
               key={course._id}
               className="border-b py-2 flex justify-between items-center"
             >
-              <span>{course.name}</span>
+              <span className="flex-1">
+                {editingCourseId === course._id ? (
+                  <Input
+                    value={editingCourseName}
+                    onChange={(e) => setEditingCourseName(e.target.value)}
+                  />
+                ) : (
+                  course.name
+                )}
+              </span>
               <div className="space-x-2">
-                <button className="text-sm text-yellow-500 hover:text-yellow-700">
-                  Düzenle
-                </button>
+                {editingCourseId === course._id ? (
+                  <>
+                    <button
+                      className="text-sm text-green-600 hover:text-green-800"
+                      onClick={saveEdit}
+                    >
+                      Kaydet
+                    </button>
+                    <button
+                      className="text-sm text-gray-600 hover:text-gray-800"
+                      onClick={cancelEdit}
+                    >
+                      İptal
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="text-sm text-yellow-500 hover:text-yellow-700"
+                    onClick={() => startEdit(course)}
+                  >
+                    Düzenle
+                  </button>
+                )}
                 <button
                   className="text-sm text-red-500 hover:text-red-700"
                   onClick={() => handleDeleteCourse(course._id)}

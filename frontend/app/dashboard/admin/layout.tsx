@@ -51,6 +51,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   Kayıt Yönetimi
                 </Link>
               </li>
+              
             </ul>
           </nav>
           <div className="absolute bottom-0 left-0 w-full p-4">
