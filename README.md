@@ -103,7 +103,7 @@ docker-compose down -v
 ### Demo Kullanıcı Bilgileri
 ```
 Username: admin@example.com
-Password: Admin123!
+Password: 123456
 ```
 
 ## 🔧 Environment Variables
