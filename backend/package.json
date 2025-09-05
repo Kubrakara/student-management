@@ -11,7 +11,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "list-students": "node src/scripts/listAllStudents.js",
-    "list-students-ts": "ts-node src/scripts/listAllStudents.ts"
+    "list-students-ts": "ts-node src/scripts/listAllStudents.ts",
+    "create-admin": "ts-node src/scripts/createAdmin.ts",
+    "create-admin-js": "node dist/src/scripts/createAdmin.js"
   },
   "keywords": [],
   "author": "",

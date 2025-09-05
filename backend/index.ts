@@ -5,7 +5,8 @@ import authRoutes from "./src/routes/auth";
 import studentRoutes from "./src/routes/studentRoutes";
 import courseRoutes from "./src/routes/courseRoutes";
 import enrollmentRoutes from "./src/routes/enrollmentRoutes";
-import cors from "cors"; 
+import cors from "cors";
+import { createAdminUser } from "./src/scripts/createAdmin"; 
 
 dotenv.config();
 
@@ -19,8 +20,15 @@ const MONGO_URI: string = process.env.MONGO_URI as string;
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB bağlantısı başarılı.");
+    
+    // Admin kullanıcısını oluştur
+    try {
+      await createAdminUser();
+    } catch (error) {
+      console.error("Admin kullanıcısı oluşturma hatası:", error);
+    }
   })
   .catch((err) => {
     console.error("MongoDB bağlantı hatası:", err.message);
