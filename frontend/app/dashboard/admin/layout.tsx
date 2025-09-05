@@ -66,19 +66,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     Kayıt Yönetimi
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/dashboard/admin/users"
-                    className="py-3 px-4 text-gray-700 font-medium rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition duration-200 ease-in-out flex items-center gap-3"
-                  >
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                    </span>
-                    Kullanıcı Yönetimi
-                  </Link>
-                </li>
+                
                 
               </ul>
             </nav>
