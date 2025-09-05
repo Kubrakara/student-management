@@ -110,13 +110,12 @@ const StudentManagementPage: React.FC = () => {
     dispatch(deleteStudent(id))
       .unwrap()
       .then(() => {
-        // Eğer mevcut sayfada sadece 1 öğrenci varsa ve o siliniyorsa, önceki sayfaya git
         if (students.length === 1 && currentPage > 1) {
           const newPage = currentPage - 1;
           setCurrentPage(newPage);
           dispatch(fetchStudents({ page: newPage, limit: pageSize }));
         } else {
-          // Normal durumda mevcut sayfayı yenile
+        
           dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
         }
       })
@@ -156,7 +155,7 @@ const StudentManagementPage: React.FC = () => {
 
     setEditFormError("");
 
-    // Alan kontrolü
+ 
     if (!editStudent.firstName || !editStudent.lastName || !editStudent.birthDate) {
       setEditFormError("Lütfen tüm alanları doldurun.");
       return;
@@ -176,7 +175,6 @@ const StudentManagementPage: React.FC = () => {
     dispatch(updateStudent(editStudent as IStudent))
       .unwrap()
       .then(() => {
-        // Başarılı olduğunda listeyi yenile
         dispatch(fetchStudents({ page: currentPage, limit: pageSize }));
         handleCloseEditModal();
       })
@@ -194,72 +192,92 @@ const StudentManagementPage: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">Öğrenci Yönetimi</h2>
+    <div className="min-h-screen p-4 md:p-6 lg:p-8 bg-gradient-to-br from-indigo-50 via-white to-sky-50 animate-fade-in-up">
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-indigo-700 drop-shadow-sm">Öğrenci Yönetimi</h2>
+        <p className="mt-1 text-sm text-gray-600">Öğrenci ekleyin, düzenleyin ve kayıtlarını görüntüleyin.</p>
       </div>
 
-
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Yeni Öğrenci Ekle</h3>
+      <div className="rounded-2xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl border border-indigo-100 bg-white/80 backdrop-blur-sm">
+        <h3 className="text-xl md:text-2xl font-bold text-indigo-700 mb-4">Yeni Öğrenci Ekle</h3>
         {formError && (
-          <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-300">
+          <div className="mb-4 p-3 rounded-md bg-red-50 text-red-700 border border-red-200">
             {formError}
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <Input
-            label="Ad"
-            value={newStudent.firstName}
-            onChange={(e) =>
-              setNewStudent({ ...newStudent, firstName: e.target.value })
-            }
-          />
-          <Input
-            label="Soyad"
-            value={newStudent.lastName}
-            onChange={(e) =>
-              setNewStudent({ ...newStudent, lastName: e.target.value })
-            }
-          />
-          <Input
-            label="Doğum Tarihi"
-            type="date"
-            value={newStudent.birthDate}
-            onChange={(e) =>
-              setNewStudent({ ...newStudent, birthDate: e.target.value })
-            }
-          />
-          <Input
-            label="Kullanıcı Adı"
-            value={newStudent.username}
-            onChange={(e) =>
-              setNewStudent({ ...newStudent, username: e.target.value })
-            }
-          />
-          <Input
-            label="Şifre"
-            type="password"
-            value={newStudent.password}
-            onChange={(e) =>
-              setNewStudent({ ...newStudent, password: e.target.value })
-            }
-          />
+        <div className="flex flex-wrap -mx-2 mb-4">
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <Input
+              label="Ad"
+              placeholder="Örn: Ayşe"
+              value={newStudent.firstName}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, firstName: e.target.value })
+              }
+            />
+          </div>
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <Input
+              label="Soyad"
+              placeholder="Örn: Yılmaz"
+              value={newStudent.lastName}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, lastName: e.target.value })
+              }
+            />
+          </div>
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <Input
+              label="Doğum Tarihi"
+              type="date"
+              value={newStudent.birthDate}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, birthDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <Input
+              label="Kullanıcı Adı"
+              placeholder="Örn: ayse.yilmaz"
+              value={newStudent.username}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, username: e.target.value })
+              }
+            />
+          </div>
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <Input
+              label="Şifre"
+              type="password"
+              placeholder="Güçlü bir şifre girin"
+              value={newStudent.password}
+              onChange={(e) =>
+                setNewStudent({ ...newStudent, password: e.target.value })
+              }
+            />
+          </div>
         </div>
-        <Button onClick={handleCreateStudent}>Ekle</Button>
+        <div className="flex justify-end">
+          <Button onClick={handleCreateStudent} className="w-auto bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-300 ease-in-out shadow-md">
+            <span className="inline-flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 4.5a.75.75 0 01.75.75v6h6a.75.75 0 010 1.5h-6v6a.75.75 0 01-1.5 0v-6h-6a.75.75 0 010-1.5h6v-6A.75.75 0 0112 4.5z"/></svg>
+              Ekle
+            </span>
+          </Button>
+        </div>
       </div>
 
-    
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4">
-          Öğrenci Listesi ({totalCount})
-        </h3>
+      <div className="rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-sky-100 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
-          <div />
+          <h3 className="text-xl md:text-2xl font-bold text-sky-700">
+            Öğrenci Listesi ({totalCount})
+          </h3>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Sayfa boyutu:</label>
+            <label className="text-sm text-gray-600" htmlFor="page-size">Sayfa boyutu:</label>
             <select
-              className="border rounded px-2 py-1"
+              id="page-size"
+              className="h-10 border border-gray-200 rounded-lg px-3 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500"
               value={pageSize}
               onChange={(e) => {
                 const next = Number(e.target.value);
@@ -277,63 +295,77 @@ const StudentManagementPage: React.FC = () => {
             </select>
           </div>
         </div>
-        <ul>
-          {students.length === 0 ? (
-            <li className="text-center py-4 text-gray-500">
-              {status === "succeeded" ? "Henüz öğrenci bulunmamaktadır." : "Öğrenciler yükleniyor..."}
-            </li>
-          ) : (
-            students.map((student) => (
-            <li
-              key={student._id}
-              className="border-b py-2 flex justify-between items-center"
-            >
-              <div>
-                <span className="font-medium">
-                  {student.firstName} {student.lastName}
-                </span>
-                {student.username && (
-                  <span className="text-sm text-gray-500 ml-2">
-                    (@{student.username})
-                  </span>
-                )}
-              </div>
-              <div className="space-x-2">
-                <button 
-                  className="text-sm text-blue-500 hover:text-blue-700"
-                  onClick={() => handleStudentClick(student)}
-                >
-                  Detay
-                </button>
-                <button 
-                  className="text-sm text-yellow-500 hover:text-yellow-700"
-                  onClick={() => handleEditStudent(student)}
-                >
-                  Düzenle
-                </button>
-                <button
-                  className="text-sm text-red-500 hover:text-red-700"
-                  onClick={() => handleDeleteStudent(student._id)}
-                >
-                  Sil
-                </button>
-              </div>
-            </li>
-            ))
-          )}
-        </ul>
-        <div className="flex items-center justify-between mt-4">
+
+        {students.length === 0 ? (
+          <div className="text-center py-10 text-gray-500">{status === "succeeded" ? "Henüz öğrenci bulunmamaktadır." : "Öğrenciler yükleniyor..."}</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Ad Soyad</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Kullanıcı Adı</th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {students.map((student) => (
+                  <tr key={student._id} className="hover:bg-sky-50/70 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-200 to-sky-200 flex items-center justify-center text-indigo-700 font-semibold">
+                          {student.firstName?.[0]}{student.lastName?.[0]}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900">{student.firstName} {student.lastName}</div>
+                          <div className="text-xs text-gray-500">ID: {student._id.slice(-6)}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{student.username ? `@${student.username}` : "—"}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sky-700 bg-sky-100 hover:bg-sky-200 transition"
+                          onClick={() => handleStudentClick(student)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+                          Detay
+                        </button>
+                        <button
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-amber-700 bg-amber-100 hover:bg-amber-200 transition"
+                          onClick={() => handleEditStudent(student)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M4 15.5V20h4.5l9.9-9.9-4.5-4.5L4 15.5zm15.7-9.2c.4-.4.4-1 0-1.4l-2.6-2.6a1 1 0 00-1.4 0l-1.8 1.8 4.5 4.5 1.3-1.3z"/></svg>
+                          Düzenle
+                        </button>
+                        <button
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-rose-700 bg-rose-100 hover:bg-rose-200 transition"
+                          onClick={() => handleDeleteStudent(student._id)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M9 3a1 1 0 00-1 1v1H4.5a.75.75 0 000 1.5h.79l.86 12.08A2.25 2.25 0 008.38 22h7.24a2.25 2.25 0 002.23-2.42L18.71 6.5h.79a.75.75 0 000-1.5H16V4a1 1 0 00-1-1H9zm2 5.5a.75.75 0 011.5 0v8a.75.75 0 01-1.5 0v-8zM8.75 8.5a.75.75 0 011.5 0v8a.75.75 0 01-1.5 0v-8zM13.75 8.5a.75.75 0 011.5 0v8a.75.75 0 01-1.5 0v-8z"/></svg>
+                          Sil
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-6">
           <button
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
           >
             Önceki
           </button>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((n) => {
-                // Show a window around current page: first, last, and +/-2
                 return (
                   n === 1 ||
                   n === totalPages ||
@@ -345,9 +377,9 @@ const StudentManagementPage: React.FC = () => {
                 const needEllipsis = prev && n - prev > 1;
                 return (
                   <React.Fragment key={n}>
-                    {needEllipsis && <span className="px-2">…</span>}
+                    {needEllipsis && <span className="px-2 text-gray-400">…</span>}
                     <button
-                      className={`px-3 py-1 rounded ${n === page ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                      className={`px-4 py-2 rounded-xl font-medium transition ${n === page ? "bg-indigo-600 text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                       onClick={() => setCurrentPage(n)}
                     >
                       {n}
@@ -357,7 +389,7 @@ const StudentManagementPage: React.FC = () => {
               })}
           </div>
           <button
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
             onClick={() => setCurrentPage((p) => p + 1)}
             disabled={page >= totalPages}
           >
@@ -374,48 +406,57 @@ const StudentManagementPage: React.FC = () => {
 
       {/* Düzenleme Modal'ı */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border">
-            <h3 className="text-xl font-semibold mb-4">Öğrenci Düzenle</h3>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-8 w-full max-w-md mx-auto shadow-2xl border border-gray-200 animate-zoom-in">
+            <h3 className="text-2xl font-bold text-blue-700 mb-6">Öğrenci Düzenle</h3>
             {editFormError && (
-              <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-300">
+              <div className="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
                 {editFormError}
               </div>
             )}
-            <div className="space-y-4">
-              <Input
-                label="Ad"
-                value={editStudent.firstName || ""}
-                onChange={(e) =>
-                  setEditStudent({ ...editStudent, firstName: e.target.value })
-                }
-              />
-              <Input
-                label="Soyad"
-                value={editStudent.lastName || ""}
-                onChange={(e) =>
-                  setEditStudent({ ...editStudent, lastName: e.target.value })
-                }
-              />
-              <Input
-                label="Doğum Tarihi"
-                type="date"
-                value={editStudent.birthDate || ""}
-                onChange={(e) =>
-                  setEditStudent({ ...editStudent, birthDate: e.target.value })
-                }
-              />
+            <div className="flex flex-wrap -mx-2 mb-4">
+              <div className="w-full md:w-1/2 px-2 mb-4">
+                <Input
+                  label="Ad"
+                  value={editStudent.firstName || ""}
+                  onChange={(e) =>
+                    setEditStudent({ ...editStudent, firstName: e.target.value })
+                  }
+                  className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
+                />
+              </div>
+              <div className="w-full md:w-1/2 px-2 mb-4">
+                <Input
+                  label="Soyad"
+                  value={editStudent.lastName || ""}
+                  onChange={(e) =>
+                    setEditStudent({ ...editStudent, lastName: e.target.value })
+                  }
+                  className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
+                />
+              </div>
+              <div className="w-full px-2 mb-4">
+                <Input
+                  label="Doğum Tarihi"
+                  type="date"
+                  value={editStudent.birthDate || ""}
+                  onChange={(e) =>
+                    setEditStudent({ ...editStudent, birthDate: e.target.value })
+                  }
+                  className="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
+                />
+              </div>
             </div>
-            <div className="flex gap-2 mt-6">
+            <div className="flex justify-end gap-3 mt-8">
               <Button 
                 onClick={handleUpdateStudent}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5"
               >
                 Güncelle
               </Button>
               <Button 
                 onClick={handleCloseEditModal}
-                className="bg-gray-500 hover:bg-gray-600"
+                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5"
               >
                 İptal
               </Button>

@@ -32,6 +32,9 @@ const MyCoursesPage: React.FC = () => {
   });
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
+  const [pendingDelete, setPendingDelete] = useState<IEnrollment | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchMyEnrollments = async () => {
@@ -70,15 +73,13 @@ const MyCoursesPage: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">Kayıtlı Derslerim</h2>
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-indigo-700 drop-shadow-sm">Kayıtlı Derslerim</h2>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-sky-100 bg-white/80 backdrop-blur-sm">
         {enrollments.length === 0 ? (
-          <p className="text-gray-500">
-            Henüz kayıtlı dersiniz bulunmamaktadır.
-          </p>
+          <p className="text-gray-500">Henüz kayıtlı dersiniz bulunmamaktadır.</p>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -86,7 +87,7 @@ const MyCoursesPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <label className="text-sm text-gray-600">Sayfa boyutu:</label>
                 <select
-                  className="border rounded px-2 py-1"
+                  className="h-10 border border-gray-200 rounded-lg px-3 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500"
                   value={pageSize}
                   onChange={(e) => {
                     const next = Number(e.target.value);
@@ -107,49 +108,39 @@ const MyCoursesPage: React.FC = () => {
             {enrollments.map((enrollment: IEnrollment) => (
               <div
                 key={enrollment._id}
-                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="border rounded-xl p-4 hover:shadow-md transition bg-white"
               >
                 <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {enrollment.course.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Kayıt Tarihi: {new Date(enrollment.createdAt).toLocaleDateString('tr-TR')}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-200 to-sky-200 flex items-center justify-center text-indigo-700 font-semibold">
+                      {enrollment.course.name?.[0]}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{enrollment.course.name}</h3>
+                      <p className="text-sm text-gray-500 mt-1">Kayıt Tarihi: {new Date(enrollment.createdAt).toLocaleDateString('tr-TR')}</p>
+                    </div>
                   </div>
                   <button
-                    className="text-sm text-red-600 hover:text-red-800 px-3 py-1 border border-red-300 rounded hover:bg-red-50 transition-colors"
-                    onClick={async () => {
-                      if (confirm('Bu dersten kaydınızı silmek istediğinizden emin misiniz?')) {
-                        try {
-                          await api.delete(`/enrollments/self/withdraw/${enrollment.course._id}`);
-                          setEnrollments((prev) => prev.filter((e) => e._id !== enrollment._id));
-                          alert('Kayıt başarıyla silindi.');
-                        } catch (err: unknown) {
-                          const error = err as AxiosError;
-                          alert(
-                            (error.response?.data as { message?: string })?.message ||
-                              "Kaydı silme işlemi başarısız."
-                          );
-                        }
-                      }
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-rose-700 bg-rose-100 hover:bg-rose-200 transition"
+                    onClick={() => {
+                      setPendingDelete(enrollment);
+                      setIsConfirmOpen(true);
                     }}
                   >
-                    Kaydı Sil
+                    Sil
                   </button>
                 </div>
               </div>
             ))}
             <div className="flex items-center justify-between mt-2">
               <button
-                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
               >
                 Önceki
               </button>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((n) => n === 1 || n === totalPages || (n >= page - 2 && n <= page + 2))
                   .map((n, idx, arr) => {
@@ -157,9 +148,9 @@ const MyCoursesPage: React.FC = () => {
                     const needEllipsis = prev && n - prev > 1;
                     return (
                       <React.Fragment key={n}>
-                        {needEllipsis && <span className="px-2">…</span>}
+                        {needEllipsis && <span className="px-2 text-gray-400">…</span>}
                         <button
-                          className={`px-3 py-1 rounded ${n === page ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                          className={`px-4 py-2 rounded-xl font-medium transition ${n === page ? "bg-indigo-600 text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                           onClick={() => setPage(n)}
                         >
                           {n}
@@ -169,7 +160,7 @@ const MyCoursesPage: React.FC = () => {
                   })}
               </div>
               <button
-                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= totalPages}
               >
@@ -179,6 +170,48 @@ const MyCoursesPage: React.FC = () => {
           </div>
         )}
       </div>
+      {isConfirmOpen && pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-indigo-100 bg-white/90 shadow-2xl p-6">
+            <h3 className="text-lg font-semibold text-gray-900">Kaydı Sil</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              {pendingDelete.course.name} dersinden kaydınızı silmek istediğinize emin misiniz?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                className="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 transition"
+                onClick={() => {
+                  setIsConfirmOpen(false);
+                  setPendingDelete(null);
+                }}
+              >
+                İptal
+              </button>
+              <button
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 px-4 py-2 text-white shadow hover:from-rose-700 hover:to-red-700 transition disabled:opacity-60"
+                disabled={deleteLoading}
+                onClick={async () => {
+                  if (!pendingDelete) return;
+                  setDeleteLoading(true);
+                  try {
+                    await api.delete(`/enrollments/self/withdraw/${pendingDelete.course._id}`);
+                    setEnrollments((prev) => prev.filter((e) => e._id !== pendingDelete._id));
+                    setIsConfirmOpen(false);
+                    setPendingDelete(null);
+                  } catch (err: unknown) {
+                    const error = err as AxiosError;
+                    console.error((error.response?.data as { message?: string })?.message || 'Kaydı silme işlemi başarısız.');
+                  } finally {
+                    setDeleteLoading(false);
+                  }
+                }}
+              >
+                {deleteLoading ? 'Siliniyor...' : 'Evet, Sil'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

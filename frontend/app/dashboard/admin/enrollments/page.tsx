@@ -27,7 +27,6 @@ const EnrollmentManagementPage: React.FC = () => {
     return saved ? Number(saved) : 10;
   });
 
-  // Yeni kayıt ekleme formu için state'ler
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -37,8 +36,8 @@ const EnrollmentManagementPage: React.FC = () => {
       try {
         await Promise.all([
           dispatch(fetchEnrollments({ page: currentPage, limit: pageSize })).unwrap(),
-          dispatch(fetchStudents({ page: 1, limit: 1000 })).unwrap(), // Tüm öğrencileri getir
-          dispatch(fetchCourses({ page: 1, limit: 1000 })).unwrap() // Tüm dersleri getir
+          dispatch(fetchStudents({ page: 1, limit: 1000 })).unwrap(),
+          dispatch(fetchCourses({ page: 1, limit: 1000 })).unwrap() 
         ]);
       } catch (error) {
         console.error('Veriler yüklenirken hata:', error);
@@ -86,26 +85,28 @@ const EnrollmentManagementPage: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">Kayıt Yönetimi</h2>
+    <div className="min-h-screen p-4 md:p-6 lg:p-8 bg-gradient-to-br from-indigo-50 via-white to-sky-50 animate-fade-in-up">
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-indigo-700 drop-shadow-sm">Kayıt Yönetimi</h2>
+        <p className="mt-1 text-sm text-gray-600">Yeni kayıt ekleyin, mevcut kayıtları görüntüleyin ve yönetin.</p>
       </div>
 
       {/* Yeni Kayıt Ekle Formu */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Yeni Kayıt Ekle</h3>
+      <div className="rounded-2xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl border border-indigo-100 bg-white/80 backdrop-blur-sm">
+        <h3 className="text-xl md:text-2xl font-bold text-indigo-700 mb-4">Yeni Kayıt Ekle</h3>
         {error && (
-          <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-300">
+          <div className="mb-4 p-3 rounded-md bg-red-50 text-red-700 border border-red-200">
             {error}
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Öğrenci</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Öğrenci</label>
             <select
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              className="mt-1 block w-full h-10 text-gray-700 rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/60 transition sm:text-sm"
               value={selectedStudent}
               onChange={(e) => setSelectedStudent(e.target.value)}
+              
             >
               <option value="">Seçiniz</option>
               {students.map((student) => (
@@ -116,9 +117,9 @@ const EnrollmentManagementPage: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Ders</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Ders</label>
             <select
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              className="mt-1 block w-full h-10 text-gray-700 rounded-xl border border-gray-200 bg-white/70 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/60 transition sm:text-sm"
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
             >
@@ -131,20 +132,20 @@ const EnrollmentManagementPage: React.FC = () => {
             </select>
           </div>
           <div className="flex items-end">
-            <Button onClick={handleCreateEnrollment}>Kaydet</Button>
+            <Button onClick={handleCreateEnrollment} className="w-auto bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-300 ease-in-out shadow-md">Kaydet</Button>
           </div>
         </div>
       </div>
 
       {/* Kayıt Listesi Tablosu */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4">Tüm Kayıtlar ({totalCount})</h3>
+      <div className="rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-sky-100 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
-          <div />
+          <h3 className="text-xl md:text-2xl font-bold text-sky-700">Tüm Kayıtlar ({totalCount})</h3>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Sayfa boyutu:</label>
+            <label className="text-sm text-gray-600" htmlFor="enroll-page-size">Sayfa boyutu:</label>
             <select
-              className="border rounded px-2 py-1"
+              id="enroll-page-size"
+              className="h-10 border border-gray-200 rounded-lg px-3 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500"
               value={pageSize}
               onChange={(e) => {
                 const next = Number(e.target.value);
@@ -162,51 +163,51 @@ const EnrollmentManagementPage: React.FC = () => {
             </select>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Öğrenci Adı Soyadı
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ders Adı
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  İşlemler
-                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Öğrenci Adı Soyadı</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Ders Adı</th>
+                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">İşlemler</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {enrollments.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
                     {status === "succeeded" ? "Henüz kayıt bulunmamaktadır." : "Kayıtlar yükleniyor..."}
                   </td>
                 </tr>
               ) : (
                 enrollments.map((enrollment: IEnrollmentItem) => {
-                const student = typeof enrollment.student === "string" ? null : enrollment.student;
-                const course = typeof enrollment.course === "string" ? null : enrollment.course;
-                return (
-                  <tr key={enrollment._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {student ? `${student.firstName} ${student.lastName}` : "Öğrenci"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {course ? course.name : "Ders"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={() => handleDelete(enrollment._id)}
-                      >
-                        Sil
-                      </button>
-                    </td>
-                  </tr>
-                );
+                  const student = typeof enrollment.student === "string" ? null : enrollment.student;
+                  const course = typeof enrollment.course === "string" ? null : enrollment.course;
+                  return (
+                    <tr key={enrollment._id} className="hover:bg-sky-50/70 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-200 to-sky-200 flex items-center justify-center text-indigo-700 font-semibold">
+                            {student ? `${student.firstName?.[0]}${student.lastName?.[0]}` : "?"}
+                          </div>
+                          <div className="font-medium text-gray-900">{student ? `${student.firstName} ${student.lastName}` : "Öğrenci"}</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{course ? course.name : "Ders"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-rose-700 bg-rose-100 hover:bg-rose-200 transition"
+                            onClick={() => handleDelete(enrollment._id)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M9 3a1 1 0 00-1 1v1H4.5a.75.75 0 000 1.5h.79l.86 12.08A2.25 2.25 0 008.38 22h7.24a2.25 2.25 0 002.23-2.42L18.71 6.5h.79a.75.75 0 000-1.5H16V4a1 1 0 00-1-1H9zm2 5.5a.75.75 0 011.5 0v8a.75.75 0 01-1.5 0v-8zM8.75 8.5a.75.75 0 011.5 0v8a.75.75 0 01-1.5 0v-8zM13.75 8.5a.75.75 0 011.5 0v8a.75.75 0 01-1.5 0v-8z"/></svg>
+                            Sil
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
                 })
               )}
             </tbody>
@@ -214,15 +215,15 @@ const EnrollmentManagementPage: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-6">
           <button
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
           >
             Önceki
           </button>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((n) => n === 1 || n === totalPages || (n >= currentPage - 2 && n <= currentPage + 2))
               .map((n, idx, arr) => {
@@ -230,9 +231,9 @@ const EnrollmentManagementPage: React.FC = () => {
                 const needEllipsis = prev && n - prev > 1;
                 return (
                   <React.Fragment key={n}>
-                    {needEllipsis && <span className="px-2">…</span>}
+                    {needEllipsis && <span className="px-2 text-gray-400">…</span>}
                     <button
-                      className={`px-3 py-1 rounded ${n === page ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                      className={`px-4 py-2 rounded-xl font-medium transition ${n === page ? "bg-indigo-600 text-white shadow" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                       onClick={() => setCurrentPage(n)}
                     >
                       {n}
@@ -242,7 +243,7 @@ const EnrollmentManagementPage: React.FC = () => {
               })}
           </div>
           <button
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold shadow-md hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
             onClick={() => setCurrentPage((p) => p + 1)}
             disabled={page >= totalPages}
           >

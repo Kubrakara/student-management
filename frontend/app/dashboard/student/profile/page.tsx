@@ -68,31 +68,23 @@ const StudentProfilePage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    fetchProfile(); // Orijinal verileri geri yükle
+    fetchProfile();
     setIsEditing(false);
     setMessage("");
   };
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white shadow-md rounded-lg p-6">
+      <div className="rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-sky-100 bg-white/80 backdrop-blur-sm">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Profil Yönetimi</h1>
-          {!isEditing && (
-            <Button
-              onClick={() => setIsEditing(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Düzenle
-            </Button>
-          )}
+          <h1 className="text-2xl md:text-3xl font-extrabold text-indigo-700">Profil Yönetimi</h1>
         </div>
 
         {message && (
           <div className={`mb-4 p-3 rounded-md ${
             message.includes("başarıyla") 
-              ? "bg-green-100 text-green-700 border border-green-300" 
-              : "bg-red-100 text-red-700 border border-red-300"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+              : "bg-rose-50 text-rose-700 border border-rose-200"
           }`}>
             {message}
           </div>
@@ -100,9 +92,7 @@ const StudentProfilePage: React.FC = () => {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ad
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Ad</label>
             <Input
               type="text"
               value={profile.firstName}
@@ -113,9 +103,7 @@ const StudentProfilePage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Soyad
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Soyad</label>
             <Input
               type="text"
               value={profile.lastName}
@@ -126,9 +114,7 @@ const StudentProfilePage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Doğum Tarihi
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Doğum Tarihi</label>
             <Input
               type="date"
               value={profile.birthDate}
@@ -138,18 +124,29 @@ const StudentProfilePage: React.FC = () => {
             />
           </div>
 
+          {!isEditing && (
+            <div className="pt-2">
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="w-auto bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-md"
+              >
+                Düzenle
+              </Button>
+            </div>
+          )}
+
           {isEditing && (
-            <div className="flex space-x-3 pt-4">
+            <div className="flex gap-3 pt-4">
               <Button
                 onClick={handleSave}
                 disabled={isLoading}
-                className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                className="w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl disabled:opacity-50"
               >
                 {isLoading ? "Kaydediliyor..." : "Kaydet"}
               </Button>
               <Button
                 onClick={handleCancel}
-                className="bg-gray-600 hover:bg-gray-700"
+                className="w-auto bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-xl"
               >
                 İptal
               </Button>

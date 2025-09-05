@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "@/lib/store";
 import api from "@/services/api";
 import { AxiosError } from "axios";
 
@@ -78,44 +76,42 @@ const UserManagementPage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="min-h-screen p-6 bg-gradient-to-br from-blue-50 to-indigo-100 animate-fade-in">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">Kullanıcı Yönetimi</h2>
+        <h2 className="text-4xl font-extrabold text-blue-800 drop-shadow-sm">Kullanıcı Yönetimi</h2>
       </div>
 
-      {/* İstatistikler */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-blue-50 p-6 rounded-lg">
+          <div className="bg-blue-100 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
             <h3 className="text-lg font-semibold text-blue-800">Toplam Kullanıcı</h3>
             <p className="text-3xl font-bold text-blue-600">{stats.totalUsers}</p>
           </div>
-          <div className="bg-green-50 p-6 rounded-lg">
+          <div className="bg-green-100 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
             <h3 className="text-lg font-semibold text-green-800">Admin Kullanıcı</h3>
             <p className="text-3xl font-bold text-green-600">{stats.adminUsers}</p>
           </div>
-          <div className="bg-purple-50 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-purple-800">Öğrenci Kullanıcı</h3>
-            <p className="text-3xl font-bold text-purple-600">{stats.studentUsers}</p>
+          <div className="bg-purple-100 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
+            <h3 className="text-lg font-semibold text-purple-600">Öğrenci Kullanıcı</h3>
+            <p className="text-3xl font-bold text-purple-700">{stats.studentUsers}</p>
           </div>
-          <div className="bg-yellow-50 p-6 rounded-lg">
+          <div className="bg-yellow-100 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
             <h3 className="text-lg font-semibold text-yellow-800">Öğrenci Bilgisi Olan</h3>
             <p className="text-3xl font-bold text-yellow-600">{stats.usersWithStudent}</p>
           </div>
-          <div className="bg-red-50 p-6 rounded-lg">
+          <div className="bg-red-100 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
             <h3 className="text-lg font-semibold text-red-800">Öğrenci Bilgisi Olmayan</h3>
             <p className="text-3xl font-bold text-red-600">{stats.usersWithoutStudent}</p>
           </div>
-          <div className="bg-orange-50 p-6 rounded-lg">
+          <div className="bg-orange-100 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
             <h3 className="text-lg font-semibold text-orange-800">Kopuk Kullanıcı</h3>
             <p className="text-3xl font-bold text-orange-600">{stats.orphanedUsers}</p>
           </div>
         </div>
       )}
 
-      {/* Kullanıcı Listesi */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4">
+      <div className="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
+        <h3 className="text-2xl font-bold text-blue-700 mb-4">
           Kullanıcı Listesi ({totalCount})
         </h3>
         
@@ -124,7 +120,7 @@ const UserManagementPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-600">Sayfa boyutu:</label>
             <select
-              className="border rounded px-2 py-1"
+              className="h-10 border rounded-lg px-3 bg-white text-gray-700 focus:border-blue-500 focus:ring-blue-500 transition duration-200"
               value={pageSize}
               onChange={(e) => {
                 const next = Number(e.target.value);
@@ -141,22 +137,22 @@ const UserManagementPage: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+            <thead className="bg-blue-600 text-white">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                   Kullanıcı Adı
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                   Rol
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                   Öğrenci Bilgisi
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                   Oluşturulma
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                   Durum
                 </th>
               </tr>
@@ -170,17 +166,17 @@ const UserManagementPage: React.FC = () => {
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
+                  <tr key={user._id} className="hover:bg-blue-50 transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                         user.role === 'admin' 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-blue-100 text-blue-800'
+                          ? 'bg-red-500 text-white' 
+                          : 'bg-blue-500 text-white'
                       }`}>
                         {user.role === 'admin' ? 'Admin' : 'Öğrenci'}
                       </span>
@@ -188,27 +184,27 @@ const UserManagementPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.studentName ? (
                         <div>
-                          <div className="text-sm text-gray-900">{user.studentName}</div>
+                          <div className="text-sm font-medium text-gray-900">{user.studentName}</div>
                           {user.studentBirthDate && (
-                            <div className="text-xs text-gray-500">
-                              {new Date(user.studentBirthDate).toLocaleDateString('tr-TR')}
+                            <div className="text-xs text-gray-600 mt-1">
+                              Doğum Tarihi: {new Date(user.studentBirthDate).toLocaleDateString('tr-TR')}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-sm text-red-600">Öğrenci bilgisi yok</span>
+                        <span className="text-sm text-red-600 font-medium">Öğrenci bilgisi yok</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {new Date(user.createdAt).toLocaleDateString('tr-TR')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.studentName ? (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
                           Aktif
                         </span>
                       ) : (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                        <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-red-500 text-white">
                           Kopuk
                         </span>
                       )}
@@ -221,15 +217,15 @@ const UserManagementPage: React.FC = () => {
         </div>
 
         {/* Sayfalama */}
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-6">
           <button
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold shadow-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 ease-in-out"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
           >
             Önceki
           </button>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((n) => {
                 return (
@@ -243,11 +239,9 @@ const UserManagementPage: React.FC = () => {
                 const needEllipsis = prev && n - prev > 1;
                 return (
                   <React.Fragment key={n}>
-                    {needEllipsis && <span className="px-2">…</span>}
+                    {needEllipsis && <span className="px-2 text-gray-600">…</span>}
                     <button
-                      className={`px-3 py-1 rounded ${
-                        n === currentPage ? "bg-blue-600 text-white" : "bg-gray-200"
-                      }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition duration-300 ease-in-out ${n === currentPage ? "bg-blue-600 text-white shadow-md" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
                       onClick={() => setCurrentPage(n)}
                     >
                       {n}
@@ -257,7 +251,7 @@ const UserManagementPage: React.FC = () => {
               })}
           </div>
           <button
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold shadow-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 ease-in-out"
             onClick={() => setCurrentPage((p) => p + 1)}
             disabled={currentPage >= totalPages}
           >
