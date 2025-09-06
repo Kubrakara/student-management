@@ -63,9 +63,10 @@ router.post("/login", async (req: Request, res: Response) => {
         .json({ message: "Geçersiz kullanıcı adı veya şifre." });
     }
 
+    const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret_key';
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET as string,
+      jwtSecret,
       { expiresIn: "1h" }
     );
 

@@ -17,6 +17,12 @@ app.use(express.json());
 app.use(cors());
 
 const MONGO_URI: string = process.env.MONGO_URI as string;
+const JWT_SECRET: string = process.env.JWT_SECRET as string;
+
+// JWT_SECRET kontrolü
+if (!JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET environment variable tanımlanmamış! Varsayılan değer kullanılıyor.');
+}
 
 mongoose
   .connect(MONGO_URI)

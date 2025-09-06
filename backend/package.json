@@ -13,7 +13,8 @@
     "list-students": "node src/scripts/listAllStudents.js",
     "list-students-ts": "ts-node src/scripts/listAllStudents.ts",
     "create-admin": "ts-node src/scripts/createAdmin.ts",
-    "create-admin-js": "node dist/src/scripts/createAdmin.js"
+    "create-admin-js": "node dist/src/scripts/createAdmin.js",
+    "setup-admin": "ts-node src/scripts/setupAdmin.ts"
   },
   "keywords": [],
   "author": "",

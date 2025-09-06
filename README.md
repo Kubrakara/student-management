@@ -63,7 +63,7 @@ Modern web teknolojileri kullanılarak geliştirilmiş, tam kapsamlı öğrenci 
 - **MongoDB Memory Server** - Test database
 
 
-## 🚀 Kurulum ve Çalıştırma
+##  Kurulum ve Çalıştırma
 
 ### Gereksinimler
 - Docker
@@ -84,7 +84,30 @@ docker-compose up --build
 docker-compose up --build -d
 ```
 
-### 3. Servisleri Durdurun
+### 3. Admin Kullanıcısı
+Admin kullanıcısı **otomatik olarak** oluşturulur. İlk çalıştırmada:
+- Backend başlatıldığında admin kullanıcısı otomatik oluşturulur
+- Eğer admin zaten varsa, mevcut admin bilgileri gösterilir
+- Admin bilgileri Docker Compose environment variables'larından alınır
+
+**Varsayılan Admin Bilgileri:**
+- **Username:** `admin@example.com`
+- **Password:** `123456`
+- **Role:** `admin`
+
+### 3.1. Manuel Admin Kurulumu (Opsiyonel)
+```bash
+# Backend container'ına gir
+docker exec -it backend_container bash
+
+# Admin kurulum scriptini çalıştır
+npm run setup-admin
+
+# Veya doğrudan
+ts-node src/scripts/setupAdmin.ts
+```
+
+### 4. Servisleri Durdurun
 ```bash
 # Servisleri durdur
 docker-compose down
@@ -100,30 +123,78 @@ docker-compose down -v
 - **Backend API**: http://localhost:5000
 - **MongoDB**: localhost:27017
 
-### Demo Kullanıcı Bilgileri
-```
-Username: admin@example.com
-Password: 123456
-```
+### Giriş Bilgileri
+**Varsayılan Admin Bilgileri:**
+- **Username:** `admin@example.com`
+- **Password:** `123456`
+- **URL:** http://localhost:3000
 
 ## 🔧 Environment Variables
 
-### Backend (.env)
-```env
-MONGO_URI=mongodb://mongodb:27017/studentdb
-JWT_SECRET=your_jwt_secret_here
-PORT=5000
-NODE_ENV=development
+### Mevcut Durum (Basit Kurulum)
+**Şu anda** proje Docker Compose environment variables'ları ile çalışıyor. Hiçbir ek ayar gerekmez:
+
+```yaml
+# docker-compose.yml'de tanımlı değerler:
+environment:
+  - MONGO_URI=mongodb://mongodb:27017/studentdb
+  - JWT_SECRET=your_jwt_secret_key
+  - ADMIN_USERNAME=admin@example.com
+  - ADMIN_PASSWORD=123456
+  - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 ```
 
-### Frontend (.env.local)
+### Güvenlik İçin Environment Variables (Önerilen)
+**Production ortamında** güvenlik için `.env` dosyası kullanmanız önerilir
+
+#### 1. .env Dosyası Oluşturun
+```bash
+# Örnek dosyayı kopyalayın
+cp env.example .env
+
+# .env dosyasını düzenleyin
+nano .env
+```
+
+#### 2. Güvenli Değerler Girin
 ```env
+# MongoDB Connection
+MONGO_URI=mongodb://mongodb:27017/studentdb
+
+# JWT Secret Key (Production'da güçlü bir key kullanın - en az 32 karakter)
+JWT_SECRET=your_very_secure_jwt_secret_key_here_at_least_32_characters
+
+# Server Port
+PORT=5000
+
+# Environment
+NODE_ENV=development
+
+# Admin User Credentials (Production'da güçlü şifre kullanın)
+ADMIN_USERNAME=admin@example.com
+ADMIN_PASSWORD=your_secure_admin_password
+
+# Frontend Backend URL
 NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 ```
 
-> **Not**: Bu proje demo ve lokal kullanım amaçlıdır. `.env` dosyasında **JWT_SECRET** ayarlanmadığı için backend, varsayılan bir değer ile çalışmaktadır.
-> 
-> **Güvenlik Uyarısı**: Gerçek projelerde güvenlik açısından her ortam için (development, production) en az 32 karakter uzunluğunda güçlü bir JWT secret kullanmanız gerekmektedir.
+#### 3. Docker Compose'u Güncelleyin
+```yaml
+# docker-compose.yml'de environment variables'ları şu şekilde değiştirin:
+environment:
+  - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/studentdb}
+  - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key}
+  - ADMIN_USERNAME=${ADMIN_USERNAME:-admin@example.com}
+  - ADMIN_PASSWORD=${ADMIN_PASSWORD:-123456}
+  - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL:-http://localhost:5000}
+```
+
+### Güvenlik Uyarısı ⚠️
+**ÖNEMLİ**: 
+- `.env` dosyası GitHub'a yüklenmez (`.gitignore` ile korunur)
+- **Asla** gerçek production değerlerini hardcoded kullanmayın
+- **JWT_SECRET** en az 32 karakter olmalı
+- **Admin şifresi** güçlü olmalı
 
 ## 📚 API Dokümantasyonu
 
@@ -229,17 +300,6 @@ npm run test:watch
 - Student → Enrollment (1:N)
 - Course → Enrollment (1:N)
 
-## 🚀 Deployment
+##  Deployment
 
-### Production Ortamı
-1. Environment variables'ları güncelleyin
-2. Güçlü JWT secret kullanın
-3. MongoDB connection string'i yapılandırın
-4. CORS ayarlarını güncelleyin
-5. SSL sertifikası ekleyin
 
-### Docker Production
-```bash
-# Production build
-docker-compose -f docker-compose.prod.yml up --build
-```

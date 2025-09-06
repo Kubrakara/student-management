@@ -3,7 +3,7 @@ import { store } from '@/lib/store';
 import { clearAuth } from '@/lib/features/user/userSlice';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api`,
 });
 
 api.interceptors.request.use(

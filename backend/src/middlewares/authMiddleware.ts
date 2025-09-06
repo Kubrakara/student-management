@@ -20,7 +20,8 @@ const authMiddleware = (req: IRequest, res: Response, next: NextFunction) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as IJwtPayload;
+    const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret_key';
+    const payload = jwt.verify(token, jwtSecret) as IJwtPayload;
     
     req.user = payload;
     

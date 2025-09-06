@@ -3,6 +3,10 @@
 
 import mongoose from 'mongoose';
 import User from '../models/User';
+import dotenv from 'dotenv';
+
+// Environment variables'ları yükle
+dotenv.config();
 
 // MongoDB bağlantısı
 const connectDB = async (): Promise<void> => {
@@ -22,8 +26,8 @@ const connectDB = async (): Promise<void> => {
 // Admin kullanıcısı oluştur
 const createAdminUser = async (): Promise<void> => {
   try {
-    const adminUsername = 'admin@example.com';
-    const adminPassword = '123456';
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin@example.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || '123456';
     
     console.log('\n🔍 Admin kullanıcısı kontrol ediliyor...');
     
@@ -92,3 +96,4 @@ if (require.main === module) {
 }
 
 export { createAdminUser, connectDB };
+

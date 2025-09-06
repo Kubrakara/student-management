@@ -10,6 +10,11 @@ services:
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Backend servisi
   backend:
@@ -20,12 +25,14 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/studentdb
       - JWT_SECRET=your_jwt_secret_key
+      - ADMIN_USERNAME=admin@example.com
+      - ADMIN_PASSWORD=123456
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./backend:/app
       - /app/node_modules
-      - /app/dist # <--- Bu satır eklendi
     restart: unless-stopped
   # Frontend servisi
   frontend:
