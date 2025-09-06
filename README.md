@@ -1,6 +1,6 @@
 #  Öğrenci ve Ders Yönetimi Sistemi
 
-Modern web teknolojileri kullanılarak geliştirilmiş, tam kapsamlı öğrenci ve ders yönetimi uygulaması. Bu proje, Fullstack Developer teknik mülakat görevi olarak geliştirilmiştir.
+Modern web teknolojileri kullanılarak geliştirilmiş, tam kapsamlı öğrenci ve ders yönetimi uygulaması. 
 
 ##  Özellikler
 
