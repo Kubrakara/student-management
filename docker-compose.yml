@@ -30,9 +30,6 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     restart: unless-stopped
   # Frontend servisi
   frontend:
