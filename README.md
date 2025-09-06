@@ -1,44 +1,44 @@
-# 🎓 Öğrenci ve Ders Yönetimi Sistemi
+#  Öğrenci ve Ders Yönetimi Sistemi
 
 Modern web teknolojileri kullanılarak geliştirilmiş, tam kapsamlı öğrenci ve ders yönetimi uygulaması. Bu proje, Fullstack Developer teknik mülakat görevi olarak geliştirilmiştir.
 
-## 🚀 Özellikler
+##  Özellikler
 
-### 👥 Kullanıcı Yönetimi
+### Kullanıcı Yönetimi
 - **JWT tabanlı kimlik doğrulama** sistemi
 - **Role-based yetkilendirme** (Admin/Öğrenci)
 - Güvenli giriş/çıkış işlemleri
 - Kullanıcı profil yönetimi
 
-### 🎯 Öğrenci Yönetimi
+### Öğrenci Yönetimi
 - Öğrenci ekleme, güncelleme, silme
 - Öğrenci listeleme (sayfalama ile)
 - Öğrenci detay görüntüleme
 - Öğrenci profil yönetimi
 - Doğum tarihi validasyonu
 
-### 📚 Ders Yönetimi
+### Ders Yönetimi
 - Ders ekleme, güncelleme, silme
 - Ders listeleme (sayfalama ile)
 - Ders detay görüntüleme
 - Benzersiz ders adı kontrolü
 - Ders kayıtları yönetimi
 
-### 📝 Kayıt Yönetimi
+### Kayıt Yönetimi
 - Öğrenci-ders eşleştirmesi
 - Self-enrollment (öğrenci kendi kaydı)
 - Kayıt iptal etme
 - Kayıt listeleme (sayfalama ile)
 - Duplicate kayıt önleme
 
-### 🔒 Güvenlik
+### Güvenlik
 - JWT token tabanlı authentication
 - Role-based authorization
 - Input validation
 - Password hashing (bcrypt)
 - CORS koruması
 
-## 🛠️ Teknoloji Stack
+## Teknoloji Stack
 
 ### Backend
 - **Node.js** 
@@ -63,7 +63,7 @@ Modern web teknolojileri kullanılarak geliştirilmiş, tam kapsamlı öğrenci 
 - **MongoDB Memory Server** - Test database
 
 
-##  Kurulum ve Çalıştırma
+## ❗ Kurulum ve Çalıştırma
 
 ### Gereksinimler
 - Docker
@@ -116,7 +116,7 @@ docker-compose down
 docker-compose down -v
 ```
 
-## 🌐 Erişim Bilgileri
+## Erişim Bilgileri
 
 ### Uygulama URL'leri
 - **Frontend**: http://localhost:3000
@@ -129,7 +129,7 @@ docker-compose down -v
 - **Password:** `123456`
 - **URL:** http://localhost:3000
 
-## 🔧 Environment Variables
+## Environment Variables
 
 ### Mevcut Durum (Basit Kurulum)
 **Şu anda** proje Docker Compose environment variables'ları ile çalışıyor. Hiçbir ek ayar gerekmez:
@@ -144,7 +144,7 @@ environment:
   - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 ```
 
-### Güvenlik İçin Environment Variables (Önerilen)
+### 🔏❗Güvenlik İçin Environment Variables (Önerilen)
 **Production ortamında** güvenlik için `.env` dosyası kullanmanız önerilir
 
 #### 1. .env Dosyası Oluşturun
@@ -196,7 +196,7 @@ environment:
 - **JWT_SECRET** en az 32 karakter olmalı
 - **Admin şifresi** güçlü olmalı
 
-## 📚 API Dokümantasyonu
+## API Dokümantasyonu
 
 ### Authentication Endpoints
 ```
@@ -237,7 +237,7 @@ DELETE /api/enrollments/self/withdraw/:id  # Kendi kaydımı sil (Student)
 GET    /api/enrollments/my-courses    # Kayıtlı derslerim (Student)
 ```
 
-## 🧪 Test
+## Test
 
 ### Backend Testleri
 ```bash
@@ -253,7 +253,7 @@ npm run test:coverage
 npm run test:watch
 ```
 
-## 🎯 Kullanıcı Rolleri
+## Kullanıcı Rolleri
 
 ### Admin Kullanıcı
 - ✅ Tüm öğrenci işlemleri (CRUD)
@@ -269,7 +269,7 @@ npm run test:watch
 - ✅ Kayıtlı derslerini görüntüleme
 - ✅ Kayıt iptal etme
 
-## 🔒 Güvenlik Özellikleri
+## Güvenlik Özellikleri
 
 ### Authentication
 - JWT token tabanlı kimlik doğrulama
@@ -287,7 +287,7 @@ npm run test:watch
 - SQL injection koruması
 - XSS koruması
 
-## 📊 Veritabanı Şeması
+## Veritabanı Şeması
 
 ### Collections
 - **users** - Kullanıcı bilgileri
@@ -299,7 +299,5 @@ npm run test:watch
 - User → Student (1:1)
 - Student → Enrollment (1:N)
 - Course → Enrollment (1:N)
-
-##  Deployment
 
 
